@@ -1,0 +1,29 @@
+{
+  "name": "ADsP 마스터 - 기출문제 & 비전공자 개념서",
+  "short_name": "ADsP마스터",
+  "description": "데이터분석 준전문가(ADsP) 1,100제 기출문제 풀이 및 비전공자 개념 마스터북",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#F8FAFC",
+  "theme_color": "#4F46E5",
+  "orientation": "any",
+  "icons": [
+    {
+      "src": "icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icons/apple-touch-icon.png",
+      "sizes": "180x180",
+      "type": "image/png"
+    }
+  ]
+}
