@@ -206,7 +206,7 @@ function DashboardView({ exams, quizzes, examHistory, wrongCount, bookmarkCount,
         <div className="relative z-10 max-w-2xl space-y-4">
           <div className="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-white/15 backdrop-blur-md border border-white/20 text-xs font-semibold text-indigo-100">
             <span>✨</span>
-            <span>2026 ADsP 단기 합격 완성 솔루션</span>
+            <span>2026 ADsP 단기 합격 완성 솔루션 (v2.0 교재판)</span>
           </div>
           <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight leading-tight">
             합격 기준 60점 & 과락 방지,<br />
