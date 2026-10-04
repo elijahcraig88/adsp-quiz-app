@@ -392,9 +392,9 @@ function ExamRunnerView({
             </div>
 
             {/* Question Text */}
-            <h2 className="text-base sm:text-lg font-bold text-slate-900 dark:text-slate-100 leading-relaxed mb-6 whitespace-pre-line">
-              {currentQ.question}
-            </h2>
+            <div className="text-base sm:text-lg font-bold text-slate-900 dark:text-slate-100 leading-relaxed mb-6">
+              <MarkdownText content={currentQ.question} />
+            </div>
 
             {/* 4 Choices */}
             <div className="space-y-3">
@@ -433,7 +433,9 @@ function ExamRunnerView({
                     }`}>
                       {idx + 1}
                     </span>
-                    <span className="flex-1">{option}</span>
+                    <span className="flex-1">
+                      <MarkdownText content={option} className="inline" />
+                    </span>
                   </button>
                 );
               })}
@@ -509,9 +511,9 @@ function ExamRunnerView({
                   <span className="w-5 h-5 rounded-lg bg-indigo-100 dark:bg-indigo-900/60 text-indigo-600 dark:text-indigo-300 flex items-center justify-center text-xs">💡</span>
                   <span>[1단계] 정답 핵심 원리 해설</span>
                 </h4>
-                <p className="text-xs sm:text-sm text-slate-700 dark:text-slate-200 leading-relaxed whitespace-pre-line font-medium">
-                  {currentQ.explanation}
-                </p>
+                <div className="text-xs sm:text-sm text-slate-700 dark:text-slate-200 leading-relaxed font-medium">
+                  <MarkdownText content={currentQ.explanation} />
+                </div>
               </div>
 
               {/* 2. 1:1 Per-Option Flaw Analysis (선지별 분리 카드형) */}
@@ -561,8 +563,8 @@ function ExamRunnerView({
                             </div>
                           )}
 
-                          <div className="text-xs sm:text-[13px] leading-relaxed whitespace-pre-line space-y-2 font-medium">
-                            {desc}
+                          <div className="text-xs sm:text-[13px] leading-relaxed space-y-2 font-medium">
+                            <MarkdownText content={desc} />
                           </div>
                         </div>
                       );
@@ -580,9 +582,9 @@ function ExamRunnerView({
                       <span className="text-xs font-black text-teal-800 dark:text-teal-300 block">
                         [3단계] 비전공자 눈높이 개념 비유
                       </span>
-                      <p className="text-xs sm:text-sm text-teal-950 dark:text-teal-100 leading-relaxed font-medium">
-                        {currentQ.conceptMetaphor}
-                      </p>
+                      <div className="text-xs sm:text-sm text-teal-950 dark:text-teal-100 leading-relaxed font-medium">
+                        <MarkdownText content={currentQ.conceptMetaphor} />
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -597,9 +599,9 @@ function ExamRunnerView({
                       <span className="text-xs font-black text-amber-800 dark:text-amber-300 block">
                         [4단계] 시험 직전 1초 암기 공식 & 함정 탈출 팁
                       </span>
-                      <p className="text-xs sm:text-sm text-amber-950 dark:text-amber-100 font-semibold leading-relaxed">
-                        {currentQ.coreTip}
-                      </p>
+                      <div className="text-xs sm:text-sm text-amber-950 dark:text-amber-100 font-semibold leading-relaxed">
+                        <MarkdownText content={currentQ.coreTip} />
+                      </div>
                     </div>
                   </div>
                 </div>

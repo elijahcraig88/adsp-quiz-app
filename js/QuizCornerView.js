@@ -151,15 +151,15 @@ function OXQuizSection({ oxList }) {
                 <span>{isCorrect ? '🎉 정답입니다!' : '❌ 아쉽네요! 오답입니다.'}</span>
                 <span>(실제 정답: {current.isCorrect ? 'O' : 'X'})</span>
               </div>
-              <p className="text-xs leading-relaxed opacity-95">
-                {current.explanation}
-              </p>
+              <div className="text-xs leading-relaxed opacity-95">
+                <MarkdownText content={current.explanation} />
+              </div>
             </div>
 
             {current.tip && (
               <div className="bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800 rounded-xl p-3 text-xs text-amber-900 dark:text-amber-300 font-medium flex items-center space-x-2">
                 <span>📌</span>
-                <span><strong>핵심 포인트:</strong> {current.tip}</span>
+                <span className="flex-1"><strong>핵심 포인트:</strong> <MarkdownText content={current.tip} className="inline" /></span>
               </div>
             )}
 
@@ -274,9 +274,9 @@ function ChosungQuizSection({ chosungList }) {
               <div className="text-xl font-black text-indigo-600 dark:text-indigo-400 my-2">
                 정답: {current.blankWord}
               </div>
-              <p className="text-xs leading-relaxed opacity-95">
-                {current.explanation}
-              </p>
+              <div className="text-xs leading-relaxed opacity-95">
+                <MarkdownText content={current.explanation} />
+              </div>
             </div>
 
             <button
@@ -415,13 +415,14 @@ function FlashcardSection({ flashcards, flashcardStatus, onUpdateStatus }) {
                       <h5 className="font-extrabold text-sm text-indigo-700 dark:text-indigo-300">
                         {card.term}
                       </h5>
-                      <p className="text-xs text-slate-700 dark:text-slate-200 leading-relaxed">
-                        {card.definition}
-                      </p>
+                      <div className="text-xs text-slate-700 dark:text-slate-200 leading-relaxed">
+                        <MarkdownText content={card.definition} />
+                      </div>
                       {card.tip && (
-                        <p className="text-[11px] text-amber-700 dark:text-amber-400 font-medium pt-1 border-t border-indigo-200/50 dark:border-indigo-800/50">
-                          📌 {card.tip}
-                        </p>
+                        <div className="text-[11px] text-amber-700 dark:text-amber-400 font-medium pt-1 border-t border-indigo-200/50 dark:border-indigo-800/50 flex items-start space-x-1.5">
+                          <span className="shrink-0">📌</span>
+                          <span className="flex-1"><MarkdownText content={card.tip} className="inline" /></span>
+                        </div>
                       )}
                     </div>
                   )}

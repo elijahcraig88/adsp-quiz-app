@@ -155,9 +155,9 @@ function WrongNotesView({
                 </div>
 
                 {/* Question Text */}
-                <h3 className="text-sm sm:text-base font-bold text-slate-900 dark:text-slate-100 leading-relaxed whitespace-pre-line">
-                  {q.question}
-                </h3>
+                <div className="text-sm sm:text-base font-bold text-slate-900 dark:text-slate-100 leading-relaxed">
+                  <MarkdownText content={q.question} />
+                </div>
 
                 {/* Options preview with correct answer highlight */}
                 <div className="space-y-1.5">
@@ -173,7 +173,9 @@ function WrongNotesView({
                       <span className="w-4 h-4 rounded-full flex items-center justify-center shrink-0 text-[10px] font-bold bg-white/60 dark:bg-black/30">
                         {oIdx + 1}
                       </span>
-                      <span>{opt}</span>
+                      <span className="flex-1">
+                        <MarkdownText content={opt} className="inline" />
+                      </span>
                       {oIdx === q.answer && <span className="ml-auto text-[10px] text-emerald-600">✓ 정답</span>}
                     </div>
                   ))}
@@ -199,9 +201,9 @@ function WrongNotesView({
                           <span className="w-4 h-4 rounded-md bg-indigo-100 dark:bg-indigo-900/60 text-indigo-600 dark:text-indigo-300 flex items-center justify-center text-[10px]">💡</span>
                           <span>[1단계] 정답 핵심 원리 해설</span>
                         </span>
-                        <p className="text-xs text-slate-700 dark:text-slate-200 leading-relaxed whitespace-pre-line font-medium pl-0.5">
-                          {q.explanation}
-                        </p>
+                        <div className="text-xs text-slate-700 dark:text-slate-200 leading-relaxed font-medium pl-0.5">
+                          <MarkdownText content={q.explanation} />
+                        </div>
                       </div>
 
                       {/* 2. 1:1 Per-Option Flaw Analysis */}
@@ -237,9 +239,9 @@ function WrongNotesView({
                                       </span>
                                     )}
                                   </div>
-                                  <p className="text-xs leading-relaxed pl-0.5">
-                                    {text}
-                                  </p>
+                                  <div className="text-xs leading-relaxed pl-0.5">
+                                    <MarkdownText content={text} />
+                                  </div>
                                 </div>
                               );
                             })}
@@ -255,9 +257,9 @@ function WrongNotesView({
                             <span className="text-xs font-black text-teal-800 dark:text-teal-300 block">
                               [3단계] 비전공자 눈높이 개념 비유
                             </span>
-                            <p className="text-xs text-teal-950 dark:text-teal-100 leading-relaxed font-medium">
-                              {q.conceptMetaphor}
-                            </p>
+                            <div className="text-xs text-teal-950 dark:text-teal-100 leading-relaxed font-medium">
+                              <MarkdownText content={q.conceptMetaphor} />
+                            </div>
                           </div>
                         </div>
                       )}
@@ -270,9 +272,9 @@ function WrongNotesView({
                             <span className="text-xs font-black text-amber-800 dark:text-amber-300 block">
                               [4단계] 시험 직전 1초 암기 공식 & 함정 탈출 팁
                             </span>
-                            <p className="text-xs text-amber-950 dark:text-amber-100 font-semibold leading-relaxed">
-                              {q.coreTip}
-                            </p>
+                            <div className="text-xs text-amber-950 dark:text-amber-100 font-semibold leading-relaxed">
+                              <MarkdownText content={q.coreTip} />
+                            </div>
                           </div>
                         </div>
                       )}

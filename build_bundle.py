@@ -10,6 +10,7 @@ base_dir = os.path.dirname(os.path.abspath(__file__))
 
 # Component files in dependency order
 components = [
+    os.path.join(base_dir, "js", "MarkdownText.js"),
     os.path.join(base_dir, "js", "DashboardView.js"),
     os.path.join(base_dir, "js", "ConceptBookView.js"),
     os.path.join(base_dir, "js", "ExamSelectView.js"),

@@ -153,12 +153,13 @@ function SearchView({ exams, quizzes, bookmarks, onToggleBookmark }) {
                       {term.subject}과목
                     </span>
                   </div>
-                  <p className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">
-                    {term.definition}
-                  </p>
+                  <div className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">
+                    <MarkdownText content={term.definition} />
+                  </div>
                   {term.tip && (
-                    <div className="text-[11px] text-amber-700 dark:text-amber-400 pt-1 border-t border-slate-100 dark:border-slate-800 font-medium">
-                      📌 {term.tip}
+                    <div className="text-[11px] text-amber-700 dark:text-amber-400 pt-1 border-t border-slate-100 dark:border-slate-800 font-medium flex items-start space-x-1">
+                      <span>📌</span>
+                      <span className="flex-1"><MarkdownText content={term.tip} className="inline" /></span>
                     </div>
                   )}
                 </div>
@@ -196,9 +197,9 @@ function SearchView({ exams, quizzes, bookmarks, onToggleBookmark }) {
                       </button>
                     </div>
 
-                    <h4 className="text-sm font-bold text-slate-900 dark:text-slate-100 leading-relaxed">
-                      {q.question}
-                    </h4>
+                    <div className="text-sm font-bold text-slate-900 dark:text-slate-100 leading-relaxed">
+                      <MarkdownText content={q.question} />
+                    </div>
 
                     <div className="flex items-center justify-between pt-1">
                       <span className="text-xs font-semibold text-emerald-600 dark:text-emerald-400">
@@ -220,9 +221,9 @@ function SearchView({ exams, quizzes, bookmarks, onToggleBookmark }) {
                             <span className="w-4 h-4 rounded-md bg-indigo-100 dark:bg-indigo-900/60 text-indigo-600 dark:text-indigo-300 flex items-center justify-center text-[10px]">💡</span>
                             <span>[1단계] 정답 핵심 원리 해설</span>
                           </span>
-                          <p className="text-xs text-slate-700 dark:text-slate-200 leading-relaxed whitespace-pre-line font-medium pl-0.5">
-                            {q.explanation}
-                          </p>
+                          <div className="text-xs text-slate-700 dark:text-slate-200 leading-relaxed font-medium pl-0.5">
+                            <MarkdownText content={q.explanation} />
+                          </div>
                         </div>
 
                         {/* 2. 1:1 Per-Option Flaw Analysis */}
@@ -258,9 +259,9 @@ function SearchView({ exams, quizzes, bookmarks, onToggleBookmark }) {
                                         </span>
                                       )}
                                     </div>
-                                    <p className="text-xs leading-relaxed pl-0.5">
-                                      {text}
-                                    </p>
+                                    <div className="text-xs leading-relaxed pl-0.5">
+                                      <MarkdownText content={text} />
+                                    </div>
                                   </div>
                                 );
                               })}
@@ -276,9 +277,9 @@ function SearchView({ exams, quizzes, bookmarks, onToggleBookmark }) {
                               <span className="text-xs font-black text-teal-800 dark:text-teal-300 block">
                                 [3단계] 비전공자 눈높이 개념 비유
                               </span>
-                              <p className="text-xs text-teal-950 dark:text-teal-100 leading-relaxed font-medium">
-                                {q.conceptMetaphor}
-                              </p>
+                              <div className="text-xs text-teal-950 dark:text-teal-100 leading-relaxed font-medium">
+                                <MarkdownText content={q.conceptMetaphor} />
+                              </div>
                             </div>
                           </div>
                         )}
@@ -291,9 +292,9 @@ function SearchView({ exams, quizzes, bookmarks, onToggleBookmark }) {
                               <span className="text-xs font-black text-amber-800 dark:text-amber-300 block">
                                 [4단계] 시험 직전 1초 암기 공식 & 함정 탈출 팁
                               </span>
-                              <p className="text-xs text-amber-950 dark:text-amber-100 font-semibold leading-relaxed">
-                                {q.coreTip}
-                              </p>
+                              <div className="text-xs text-amber-950 dark:text-amber-100 font-semibold leading-relaxed">
+                                <MarkdownText content={q.coreTip} />
+                              </div>
                             </div>
                           </div>
                         )}

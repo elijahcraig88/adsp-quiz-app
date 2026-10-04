@@ -345,7 +345,7 @@ window.ConceptBookView = function({ onNavigateToExam }) {
             React.createElement('td', {
               key: cIdx,
               className: `p-3 ${cIdx === 0 ? 'font-bold text-indigo-950 whitespace-nowrap bg-slate-50/30' : 'text-slate-700'}`
-            }, cell)
+            }, React.createElement(MarkdownText, { content: cell, className: 'inline' }))
           )))
         )))
       ])
@@ -413,7 +413,7 @@ window.ConceptBookView = function({ onNavigateToExam }) {
           React.createElement('div', { className: 'text-xs font-black text-indigo-700 uppercase tracking-wider mb-1 flex items-center gap-1.5' }, [
             '📌 1초 핵심 요약 (시험 직전 암기)'
           ]),
-          React.createElement('div', { className: 'text-sm font-bold text-indigo-950 leading-relaxed' }, topic.oneLiner)
+          React.createElement('div', { className: 'text-sm font-bold text-indigo-950 leading-relaxed' }, React.createElement(MarkdownText, { content: topic.oneLiner }))
         ]),
 
         // 2. Visual Diagram (핵심 시각 도식 캔버스)
@@ -428,7 +428,7 @@ window.ConceptBookView = function({ onNavigateToExam }) {
             React.createElement('span', { className: 'w-2.5 h-2.5 rounded-full bg-indigo-600' }),
             '📚 교재형 체계적 핵심 이론'
           ]),
-          React.createElement('div', { className: 'text-sm text-slate-800 leading-relaxed whitespace-pre-line bg-slate-50/70 p-4 rounded-xl border border-slate-200 font-sans' }, topic.coreTheory)
+          React.createElement('div', { className: 'text-sm text-slate-800 leading-relaxed bg-slate-50/70 p-4 rounded-xl border border-slate-200 font-sans' }, React.createElement(MarkdownText, { content: topic.coreTheory }))
         ]),
 
         // 5. Metaphor (초보 눈높이 일상 비유)
@@ -436,7 +436,7 @@ window.ConceptBookView = function({ onNavigateToExam }) {
           React.createElement('div', { className: 'text-xs font-black text-teal-800 uppercase tracking-wider mb-1.5 flex items-center gap-1.5' }, [
             '☕ 초보 눈높이 일상 비유'
           ]),
-          React.createElement('div', { className: 'text-sm text-teal-950 leading-relaxed italic font-medium' }, `"${metaphor}"`)
+          React.createElement('div', { className: 'text-sm text-teal-950 leading-relaxed italic font-medium' }, React.createElement(MarkdownText, { content: metaphor }))
         ]),
 
         // 6. Traps and Tips (출제 포인트 & 함정 탈출 팁)
@@ -444,7 +444,7 @@ window.ConceptBookView = function({ onNavigateToExam }) {
           React.createElement('div', { className: 'text-xs font-black text-amber-800 uppercase tracking-wider mb-1.5 flex items-center gap-1.5' }, [
             '🎯 출제 포인트 & 시험 단골 함정 탈출 팁'
           ]),
-          React.createElement('div', { className: 'text-sm text-amber-950 leading-relaxed whitespace-pre-line font-medium' }, traps)
+          React.createElement('div', { className: 'text-sm text-amber-950 leading-relaxed font-medium' }, React.createElement(MarkdownText, { content: traps }))
         ]),
 
         // 7. Exam Sample (실전 기출 확인 예제)
@@ -499,7 +499,7 @@ window.ConceptBookView = function({ onNavigateToExam }) {
           ]),
           isAnsVisible && React.createElement('div', { className: 'mt-3 pt-3 border-t border-slate-100 text-xs bg-emerald-50/70 p-3.5 rounded-lg border border-emerald-200 text-emerald-950 leading-relaxed' }, [
             React.createElement('div', { className: 'font-bold mb-1 text-emerald-800' }, `✓ 정답: ${sample.answer}번`),
-            sample.solution || sample.explanation
+            React.createElement(MarkdownText, { content: sample.solution || sample.explanation })
           ])
         ])
       ]),
@@ -778,15 +778,24 @@ window.ConceptBookView = function({ onNavigateToExam }) {
             React.createElement('span', { className: 'font-mono text-slate-400' }, `PAGE ${tIdx + 1}`)
           ]),
           React.createElement('h2', { className: 'text-2xl font-bold text-slate-900 my-2' }, topic.title),
-          React.createElement('div', { className: 'bg-slate-100 p-2.5 rounded font-bold text-xs mb-3 text-indigo-950' }, `📌 요약: ${topic.oneLiner}`),
+          React.createElement('div', { className: 'bg-slate-100 p-2.5 rounded font-bold text-xs mb-3 text-indigo-950 flex items-center gap-1.5' }, [
+            '📌 요약: ',
+            React.createElement(MarkdownText, { content: topic.oneLiner, className: 'inline' })
+          ]),
           renderVisualDiagram(topic.diagram),
           renderComparisonTable(topic.comparisonTable),
-          React.createElement('div', { className: 'text-xs whitespace-pre-line mb-3 font-sans leading-relaxed' }, topic.coreTheory),
-          React.createElement('div', { className: 'bg-teal-50 border-l-4 border-teal-500 p-2.5 text-xs italic mb-2' }, `☕ 일상 비유: ${topic.metaphor || topic.analogy}`),
-          React.createElement('div', { className: 'bg-amber-50 border-l-4 border-amber-500 p-2.5 text-xs mb-2 whitespace-pre-line' }, topic.trapsAndTips || topic.examTrap),
+          React.createElement('div', { className: 'text-xs mb-3 font-sans leading-relaxed' }, React.createElement(MarkdownText, { content: topic.coreTheory })),
+          React.createElement('div', { className: 'bg-teal-50 border-l-4 border-teal-500 p-2.5 text-xs italic mb-2' }, [
+            '☕ 일상 비유: ',
+            React.createElement(MarkdownText, { content: topic.metaphor || topic.analogy, className: 'inline' })
+          ]),
+          React.createElement('div', { className: 'bg-amber-50 border-l-4 border-amber-500 p-2.5 text-xs mb-2' }, React.createElement(MarkdownText, { content: topic.trapsAndTips || topic.examTrap })),
           (topic.examSample || topic.practiceQuestion) && React.createElement('div', { className: 'border border-slate-300 p-2.5 rounded text-xs bg-slate-50' }, [
             React.createElement('div', { className: 'font-bold mb-1' }, `[기출 예제] ${(topic.examSample || topic.practiceQuestion).question}`),
-            React.createElement('div', { className: 'font-semibold text-indigo-700' }, `정답: ${(topic.examSample || topic.practiceQuestion).answer}번 - ${(topic.examSample || topic.practiceQuestion).solution || (topic.examSample || topic.practiceQuestion).explanation}`)
+            React.createElement('div', { className: 'font-semibold text-indigo-700' }, [
+              `정답: ${(topic.examSample || topic.practiceQuestion).answer}번 - `,
+              React.createElement(MarkdownText, { content: (topic.examSample || topic.practiceQuestion).solution || (topic.examSample || topic.practiceQuestion).explanation, className: 'inline' })
+            ])
           ])
         ])
       ))

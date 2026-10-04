@@ -1,6 +1,181 @@
 // ADsP Master Unified Bundle
 const { useState, useEffect, useMemo, useRef, useCallback } = React;
 
+// === MarkdownText.js ===
+// ADsP Master App - Universal Lightweight React Markdown Renderer
+// Safely parses bold (**text**), inline code (`code`), headers (###), lists (- item, 1. item), blockquotes (> text)
+// 100% Zero-dependency, Offline PWA compatible, Virtual DOM based (No dangerouslySetInnerHTML)
+
+function MarkdownText({ content, className = '' }) {
+  if (!content) return null;
+  if (typeof content !== 'string') return React.createElement('span', { className }, String(content));
+
+  // Parse inline elements (bold, code)
+  const parseInline = (text, keyPrefix = 'inline') => {
+    if (!text) return null;
+    const regex = /(\*\*[^\n]+?\*\*|`[^`\n]+?`)/g;
+    const parts = text.split(regex);
+
+    return parts.map((part, idx) => {
+      if (!part) return null;
+      const key = `${keyPrefix}-${idx}`;
+
+      // Bold: **text**
+      if (part.startsWith('**') && part.endsWith('**') && part.length >= 4) {
+        return React.createElement(
+          'strong',
+          {
+            key,
+            className: 'font-extrabold text-slate-900 dark:text-slate-50 bg-amber-500/15 dark:bg-amber-400/20 px-1 py-0.5 rounded text-inherit'
+          },
+          part.slice(2, -2)
+        );
+      }
+
+      // Inline Code: `code`
+      if (part.startsWith('`') && part.endsWith('`') && part.length >= 2) {
+        return React.createElement(
+          'code',
+          {
+            key,
+            className: 'font-mono text-[11px] sm:text-xs font-bold text-indigo-700 dark:text-indigo-300 bg-indigo-50 dark:bg-indigo-950/70 border border-indigo-200/70 dark:border-indigo-800/70 px-1.5 py-0.5 rounded-md shadow-xs mx-0.5'
+          },
+          part.slice(1, -1)
+        );
+      }
+
+      return React.createElement('span', { key }, part);
+    });
+  };
+
+  // If content does not contain newlines and className contains 'inline', return inline span
+  if (!content.includes('\n') && className.includes('inline')) {
+    return React.createElement('span', { className }, parseInline(content, 'single'));
+  }
+
+  // Split lines and parse block elements
+  const lines = content.split('\n');
+  const elements = [];
+
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i];
+    const trimmed = line.trim();
+
+    // Empty line -> spacing
+    if (!trimmed) {
+      elements.push(React.createElement('div', { key: `empty-${i}`, className: 'h-1.5' }));
+      continue;
+    }
+
+    // Header 3: ### Title
+    if (trimmed.startsWith('### ')) {
+      elements.push(
+        React.createElement(
+          'h5',
+          {
+            key: `h3-${i}`,
+            className: 'text-xs sm:text-sm font-black text-indigo-700 dark:text-indigo-400 mt-2.5 mb-1 flex items-center space-x-1.5'
+          },
+          parseInline(trimmed.slice(4), `h3-${i}`)
+        )
+      );
+      continue;
+    }
+
+    // Header 2: ## Title
+    if (trimmed.startsWith('## ')) {
+      elements.push(
+        React.createElement(
+          'h4',
+          {
+            key: `h2-${i}`,
+            className: 'text-sm sm:text-base font-black text-indigo-800 dark:text-indigo-300 mt-3 mb-1.5'
+          },
+          parseInline(trimmed.slice(3), `h2-${i}`)
+        )
+      );
+      continue;
+    }
+
+    // Blockquote: > Text
+    if (trimmed.startsWith('> ')) {
+      elements.push(
+        React.createElement(
+          'blockquote',
+          {
+            key: `quote-${i}`,
+            className: 'border-l-4 border-indigo-500 pl-3 py-1 my-1.5 bg-indigo-50/40 dark:bg-indigo-950/20 text-xs sm:text-sm text-slate-700 dark:text-slate-300 italic rounded-r-lg'
+          },
+          parseInline(trimmed.slice(2), `quote-${i}`)
+        )
+      );
+      continue;
+    }
+
+    // Bullet List: - Item or * Item or • Item
+    const bulletMatch = line.match(/^(\s*)([-*•])\s+(.+)$/);
+    if (bulletMatch) {
+      const indentLevel = Math.floor(bulletMatch[1].length / 2);
+      const itemText = bulletMatch[3];
+      elements.push(
+        React.createElement(
+          'div',
+          {
+            key: `bullet-${i}`,
+            className: `flex items-start space-x-2 my-0.5 leading-relaxed ${indentLevel > 0 ? (indentLevel === 1 ? 'ml-3' : 'ml-6') : ''}`
+          },
+          [
+            React.createElement('span', { key: 'bullet-icon', className: 'text-indigo-500 dark:text-indigo-400 font-bold shrink-0 mt-0.5 select-none text-xs' }, '•'),
+            React.createElement('div', { key: 'bullet-content', className: 'flex-1' }, parseInline(itemText, `bullet-${i}`))
+          ]
+        )
+      );
+      continue;
+    }
+
+    // Numbered List: 1. Item, 2. Item
+    const numMatch = line.match(/^(\s*)(\d+)\.\s+(.+)$/);
+    if (numMatch) {
+      const indentLevel = Math.floor(numMatch[1].length / 2);
+      const num = numMatch[2];
+      const itemText = numMatch[3];
+      elements.push(
+        React.createElement(
+          'div',
+          {
+            key: `num-${i}`,
+            className: `flex items-start space-x-2 my-1 leading-relaxed ${indentLevel > 0 ? (indentLevel === 1 ? 'ml-3' : 'ml-6') : ''}`
+          },
+          [
+            React.createElement(
+              'span',
+              {
+                key: 'num-badge',
+                className: 'w-4 h-4 sm:w-5 sm:h-5 rounded bg-indigo-100 dark:bg-indigo-950 text-indigo-700 dark:text-indigo-300 font-black text-[10px] sm:text-[11px] flex items-center justify-center shrink-0 mt-0.5 select-none shadow-xs'
+              },
+              num
+            ),
+            React.createElement('div', { key: 'num-content', className: 'flex-1 font-medium' }, parseInline(itemText, `num-${i}`))
+          ]
+        )
+      );
+      continue;
+    }
+
+    // Normal Paragraph line
+    elements.push(
+      React.createElement(
+        'div',
+        { key: `line-${i}`, className: 'leading-relaxed' },
+        parseInline(line, `line-${i}`)
+      )
+    );
+  }
+
+  return React.createElement('div', { className: `markdown-content space-y-1 ${className}` }, elements);
+}
+
+
 // === DashboardView.js ===
 // ADsP Master App - Views & Components
 // Contains DashboardView, ExamSelectView, ExamRunnerView, QuizCornerView, WrongNotesView, SearchView
@@ -594,7 +769,7 @@ window.ConceptBookView = function({ onNavigateToExam }) {
             React.createElement('td', {
               key: cIdx,
               className: `p-3 ${cIdx === 0 ? 'font-bold text-indigo-950 whitespace-nowrap bg-slate-50/30' : 'text-slate-700'}`
-            }, cell)
+            }, React.createElement(MarkdownText, { content: cell, className: 'inline' }))
           )))
         )))
       ])
@@ -662,7 +837,7 @@ window.ConceptBookView = function({ onNavigateToExam }) {
           React.createElement('div', { className: 'text-xs font-black text-indigo-700 uppercase tracking-wider mb-1 flex items-center gap-1.5' }, [
             '📌 1초 핵심 요약 (시험 직전 암기)'
           ]),
-          React.createElement('div', { className: 'text-sm font-bold text-indigo-950 leading-relaxed' }, topic.oneLiner)
+          React.createElement('div', { className: 'text-sm font-bold text-indigo-950 leading-relaxed' }, React.createElement(MarkdownText, { content: topic.oneLiner }))
         ]),
 
         // 2. Visual Diagram (핵심 시각 도식 캔버스)
@@ -677,7 +852,7 @@ window.ConceptBookView = function({ onNavigateToExam }) {
             React.createElement('span', { className: 'w-2.5 h-2.5 rounded-full bg-indigo-600' }),
             '📚 교재형 체계적 핵심 이론'
           ]),
-          React.createElement('div', { className: 'text-sm text-slate-800 leading-relaxed whitespace-pre-line bg-slate-50/70 p-4 rounded-xl border border-slate-200 font-sans' }, topic.coreTheory)
+          React.createElement('div', { className: 'text-sm text-slate-800 leading-relaxed bg-slate-50/70 p-4 rounded-xl border border-slate-200 font-sans' }, React.createElement(MarkdownText, { content: topic.coreTheory }))
         ]),
 
         // 5. Metaphor (초보 눈높이 일상 비유)
@@ -685,7 +860,7 @@ window.ConceptBookView = function({ onNavigateToExam }) {
           React.createElement('div', { className: 'text-xs font-black text-teal-800 uppercase tracking-wider mb-1.5 flex items-center gap-1.5' }, [
             '☕ 초보 눈높이 일상 비유'
           ]),
-          React.createElement('div', { className: 'text-sm text-teal-950 leading-relaxed italic font-medium' }, `"${metaphor}"`)
+          React.createElement('div', { className: 'text-sm text-teal-950 leading-relaxed italic font-medium' }, React.createElement(MarkdownText, { content: metaphor }))
         ]),
 
         // 6. Traps and Tips (출제 포인트 & 함정 탈출 팁)
@@ -693,7 +868,7 @@ window.ConceptBookView = function({ onNavigateToExam }) {
           React.createElement('div', { className: 'text-xs font-black text-amber-800 uppercase tracking-wider mb-1.5 flex items-center gap-1.5' }, [
             '🎯 출제 포인트 & 시험 단골 함정 탈출 팁'
           ]),
-          React.createElement('div', { className: 'text-sm text-amber-950 leading-relaxed whitespace-pre-line font-medium' }, traps)
+          React.createElement('div', { className: 'text-sm text-amber-950 leading-relaxed font-medium' }, React.createElement(MarkdownText, { content: traps }))
         ]),
 
         // 7. Exam Sample (실전 기출 확인 예제)
@@ -748,7 +923,7 @@ window.ConceptBookView = function({ onNavigateToExam }) {
           ]),
           isAnsVisible && React.createElement('div', { className: 'mt-3 pt-3 border-t border-slate-100 text-xs bg-emerald-50/70 p-3.5 rounded-lg border border-emerald-200 text-emerald-950 leading-relaxed' }, [
             React.createElement('div', { className: 'font-bold mb-1 text-emerald-800' }, `✓ 정답: ${sample.answer}번`),
-            sample.solution || sample.explanation
+            React.createElement(MarkdownText, { content: sample.solution || sample.explanation })
           ])
         ])
       ]),
@@ -1027,15 +1202,24 @@ window.ConceptBookView = function({ onNavigateToExam }) {
             React.createElement('span', { className: 'font-mono text-slate-400' }, `PAGE ${tIdx + 1}`)
           ]),
           React.createElement('h2', { className: 'text-2xl font-bold text-slate-900 my-2' }, topic.title),
-          React.createElement('div', { className: 'bg-slate-100 p-2.5 rounded font-bold text-xs mb-3 text-indigo-950' }, `📌 요약: ${topic.oneLiner}`),
+          React.createElement('div', { className: 'bg-slate-100 p-2.5 rounded font-bold text-xs mb-3 text-indigo-950 flex items-center gap-1.5' }, [
+            '📌 요약: ',
+            React.createElement(MarkdownText, { content: topic.oneLiner, className: 'inline' })
+          ]),
           renderVisualDiagram(topic.diagram),
           renderComparisonTable(topic.comparisonTable),
-          React.createElement('div', { className: 'text-xs whitespace-pre-line mb-3 font-sans leading-relaxed' }, topic.coreTheory),
-          React.createElement('div', { className: 'bg-teal-50 border-l-4 border-teal-500 p-2.5 text-xs italic mb-2' }, `☕ 일상 비유: ${topic.metaphor || topic.analogy}`),
-          React.createElement('div', { className: 'bg-amber-50 border-l-4 border-amber-500 p-2.5 text-xs mb-2 whitespace-pre-line' }, topic.trapsAndTips || topic.examTrap),
+          React.createElement('div', { className: 'text-xs mb-3 font-sans leading-relaxed' }, React.createElement(MarkdownText, { content: topic.coreTheory })),
+          React.createElement('div', { className: 'bg-teal-50 border-l-4 border-teal-500 p-2.5 text-xs italic mb-2' }, [
+            '☕ 일상 비유: ',
+            React.createElement(MarkdownText, { content: topic.metaphor || topic.analogy, className: 'inline' })
+          ]),
+          React.createElement('div', { className: 'bg-amber-50 border-l-4 border-amber-500 p-2.5 text-xs mb-2' }, React.createElement(MarkdownText, { content: topic.trapsAndTips || topic.examTrap })),
           (topic.examSample || topic.practiceQuestion) && React.createElement('div', { className: 'border border-slate-300 p-2.5 rounded text-xs bg-slate-50' }, [
             React.createElement('div', { className: 'font-bold mb-1' }, `[기출 예제] ${(topic.examSample || topic.practiceQuestion).question}`),
-            React.createElement('div', { className: 'font-semibold text-indigo-700' }, `정답: ${(topic.examSample || topic.practiceQuestion).answer}번 - ${(topic.examSample || topic.practiceQuestion).solution || (topic.examSample || topic.practiceQuestion).explanation}`)
+            React.createElement('div', { className: 'font-semibold text-indigo-700' }, [
+              `정답: ${(topic.examSample || topic.practiceQuestion).answer}번 - `,
+              React.createElement(MarkdownText, { content: (topic.examSample || topic.practiceQuestion).solution || (topic.examSample || topic.practiceQuestion).explanation, className: 'inline' })
+            ])
           ])
         ])
       ))
@@ -1687,9 +1871,9 @@ function ExamRunnerView({
             </div>
 
             {/* Question Text */}
-            <h2 className="text-base sm:text-lg font-bold text-slate-900 dark:text-slate-100 leading-relaxed mb-6 whitespace-pre-line">
-              {currentQ.question}
-            </h2>
+            <div className="text-base sm:text-lg font-bold text-slate-900 dark:text-slate-100 leading-relaxed mb-6">
+              <MarkdownText content={currentQ.question} />
+            </div>
 
             {/* 4 Choices */}
             <div className="space-y-3">
@@ -1728,7 +1912,9 @@ function ExamRunnerView({
                     }`}>
                       {idx + 1}
                     </span>
-                    <span className="flex-1">{option}</span>
+                    <span className="flex-1">
+                      <MarkdownText content={option} className="inline" />
+                    </span>
                   </button>
                 );
               })}
@@ -1804,9 +1990,9 @@ function ExamRunnerView({
                   <span className="w-5 h-5 rounded-lg bg-indigo-100 dark:bg-indigo-900/60 text-indigo-600 dark:text-indigo-300 flex items-center justify-center text-xs">💡</span>
                   <span>[1단계] 정답 핵심 원리 해설</span>
                 </h4>
-                <p className="text-xs sm:text-sm text-slate-700 dark:text-slate-200 leading-relaxed whitespace-pre-line font-medium">
-                  {currentQ.explanation}
-                </p>
+                <div className="text-xs sm:text-sm text-slate-700 dark:text-slate-200 leading-relaxed font-medium">
+                  <MarkdownText content={currentQ.explanation} />
+                </div>
               </div>
 
               {/* 2. 1:1 Per-Option Flaw Analysis (선지별 분리 카드형) */}
@@ -1856,8 +2042,8 @@ function ExamRunnerView({
                             </div>
                           )}
 
-                          <div className="text-xs sm:text-[13px] leading-relaxed whitespace-pre-line space-y-2 font-medium">
-                            {desc}
+                          <div className="text-xs sm:text-[13px] leading-relaxed space-y-2 font-medium">
+                            <MarkdownText content={desc} />
                           </div>
                         </div>
                       );
@@ -1875,9 +2061,9 @@ function ExamRunnerView({
                       <span className="text-xs font-black text-teal-800 dark:text-teal-300 block">
                         [3단계] 비전공자 눈높이 개념 비유
                       </span>
-                      <p className="text-xs sm:text-sm text-teal-950 dark:text-teal-100 leading-relaxed font-medium">
-                        {currentQ.conceptMetaphor}
-                      </p>
+                      <div className="text-xs sm:text-sm text-teal-950 dark:text-teal-100 leading-relaxed font-medium">
+                        <MarkdownText content={currentQ.conceptMetaphor} />
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -1892,9 +2078,9 @@ function ExamRunnerView({
                       <span className="text-xs font-black text-amber-800 dark:text-amber-300 block">
                         [4단계] 시험 직전 1초 암기 공식 & 함정 탈출 팁
                       </span>
-                      <p className="text-xs sm:text-sm text-amber-950 dark:text-amber-100 font-semibold leading-relaxed">
-                        {currentQ.coreTip}
-                      </p>
+                      <div className="text-xs sm:text-sm text-amber-950 dark:text-amber-100 font-semibold leading-relaxed">
+                        <MarkdownText content={currentQ.coreTip} />
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -2125,15 +2311,15 @@ function OXQuizSection({ oxList }) {
                 <span>{isCorrect ? '🎉 정답입니다!' : '❌ 아쉽네요! 오답입니다.'}</span>
                 <span>(실제 정답: {current.isCorrect ? 'O' : 'X'})</span>
               </div>
-              <p className="text-xs leading-relaxed opacity-95">
-                {current.explanation}
-              </p>
+              <div className="text-xs leading-relaxed opacity-95">
+                <MarkdownText content={current.explanation} />
+              </div>
             </div>
 
             {current.tip && (
               <div className="bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800 rounded-xl p-3 text-xs text-amber-900 dark:text-amber-300 font-medium flex items-center space-x-2">
                 <span>📌</span>
-                <span><strong>핵심 포인트:</strong> {current.tip}</span>
+                <span className="flex-1"><strong>핵심 포인트:</strong> <MarkdownText content={current.tip} className="inline" /></span>
               </div>
             )}
 
@@ -2248,9 +2434,9 @@ function ChosungQuizSection({ chosungList }) {
               <div className="text-xl font-black text-indigo-600 dark:text-indigo-400 my-2">
                 정답: {current.blankWord}
               </div>
-              <p className="text-xs leading-relaxed opacity-95">
-                {current.explanation}
-              </p>
+              <div className="text-xs leading-relaxed opacity-95">
+                <MarkdownText content={current.explanation} />
+              </div>
             </div>
 
             <button
@@ -2389,13 +2575,14 @@ function FlashcardSection({ flashcards, flashcardStatus, onUpdateStatus }) {
                       <h5 className="font-extrabold text-sm text-indigo-700 dark:text-indigo-300">
                         {card.term}
                       </h5>
-                      <p className="text-xs text-slate-700 dark:text-slate-200 leading-relaxed">
-                        {card.definition}
-                      </p>
+                      <div className="text-xs text-slate-700 dark:text-slate-200 leading-relaxed">
+                        <MarkdownText content={card.definition} />
+                      </div>
                       {card.tip && (
-                        <p className="text-[11px] text-amber-700 dark:text-amber-400 font-medium pt-1 border-t border-indigo-200/50 dark:border-indigo-800/50">
-                          📌 {card.tip}
-                        </p>
+                        <div className="text-[11px] text-amber-700 dark:text-amber-400 font-medium pt-1 border-t border-indigo-200/50 dark:border-indigo-800/50 flex items-start space-x-1.5">
+                          <span className="shrink-0">📌</span>
+                          <span className="flex-1"><MarkdownText content={card.tip} className="inline" /></span>
+                        </div>
                       )}
                     </div>
                   )}
@@ -2684,9 +2871,9 @@ function WrongNotesView({
                 </div>
 
                 {/* Question Text */}
-                <h3 className="text-sm sm:text-base font-bold text-slate-900 dark:text-slate-100 leading-relaxed whitespace-pre-line">
-                  {q.question}
-                </h3>
+                <div className="text-sm sm:text-base font-bold text-slate-900 dark:text-slate-100 leading-relaxed">
+                  <MarkdownText content={q.question} />
+                </div>
 
                 {/* Options preview with correct answer highlight */}
                 <div className="space-y-1.5">
@@ -2702,7 +2889,9 @@ function WrongNotesView({
                       <span className="w-4 h-4 rounded-full flex items-center justify-center shrink-0 text-[10px] font-bold bg-white/60 dark:bg-black/30">
                         {oIdx + 1}
                       </span>
-                      <span>{opt}</span>
+                      <span className="flex-1">
+                        <MarkdownText content={opt} className="inline" />
+                      </span>
                       {oIdx === q.answer && <span className="ml-auto text-[10px] text-emerald-600">✓ 정답</span>}
                     </div>
                   ))}
@@ -2728,9 +2917,9 @@ function WrongNotesView({
                           <span className="w-4 h-4 rounded-md bg-indigo-100 dark:bg-indigo-900/60 text-indigo-600 dark:text-indigo-300 flex items-center justify-center text-[10px]">💡</span>
                           <span>[1단계] 정답 핵심 원리 해설</span>
                         </span>
-                        <p className="text-xs text-slate-700 dark:text-slate-200 leading-relaxed whitespace-pre-line font-medium pl-0.5">
-                          {q.explanation}
-                        </p>
+                        <div className="text-xs text-slate-700 dark:text-slate-200 leading-relaxed font-medium pl-0.5">
+                          <MarkdownText content={q.explanation} />
+                        </div>
                       </div>
 
                       {/* 2. 1:1 Per-Option Flaw Analysis */}
@@ -2766,9 +2955,9 @@ function WrongNotesView({
                                       </span>
                                     )}
                                   </div>
-                                  <p className="text-xs leading-relaxed pl-0.5">
-                                    {text}
-                                  </p>
+                                  <div className="text-xs leading-relaxed pl-0.5">
+                                    <MarkdownText content={text} />
+                                  </div>
                                 </div>
                               );
                             })}
@@ -2784,9 +2973,9 @@ function WrongNotesView({
                             <span className="text-xs font-black text-teal-800 dark:text-teal-300 block">
                               [3단계] 비전공자 눈높이 개념 비유
                             </span>
-                            <p className="text-xs text-teal-950 dark:text-teal-100 leading-relaxed font-medium">
-                              {q.conceptMetaphor}
-                            </p>
+                            <div className="text-xs text-teal-950 dark:text-teal-100 leading-relaxed font-medium">
+                              <MarkdownText content={q.conceptMetaphor} />
+                            </div>
                           </div>
                         </div>
                       )}
@@ -2799,9 +2988,9 @@ function WrongNotesView({
                             <span className="text-xs font-black text-amber-800 dark:text-amber-300 block">
                               [4단계] 시험 직전 1초 암기 공식 & 함정 탈출 팁
                             </span>
-                            <p className="text-xs text-amber-950 dark:text-amber-100 font-semibold leading-relaxed">
-                              {q.coreTip}
-                            </p>
+                            <div className="text-xs text-amber-950 dark:text-amber-100 font-semibold leading-relaxed">
+                              <MarkdownText content={q.coreTip} />
+                            </div>
                           </div>
                         </div>
                       )}
@@ -2976,12 +3165,13 @@ function SearchView({ exams, quizzes, bookmarks, onToggleBookmark }) {
                       {term.subject}과목
                     </span>
                   </div>
-                  <p className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">
-                    {term.definition}
-                  </p>
+                  <div className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">
+                    <MarkdownText content={term.definition} />
+                  </div>
                   {term.tip && (
-                    <div className="text-[11px] text-amber-700 dark:text-amber-400 pt-1 border-t border-slate-100 dark:border-slate-800 font-medium">
-                      📌 {term.tip}
+                    <div className="text-[11px] text-amber-700 dark:text-amber-400 pt-1 border-t border-slate-100 dark:border-slate-800 font-medium flex items-start space-x-1">
+                      <span>📌</span>
+                      <span className="flex-1"><MarkdownText content={term.tip} className="inline" /></span>
                     </div>
                   )}
                 </div>
@@ -3019,9 +3209,9 @@ function SearchView({ exams, quizzes, bookmarks, onToggleBookmark }) {
                       </button>
                     </div>
 
-                    <h4 className="text-sm font-bold text-slate-900 dark:text-slate-100 leading-relaxed">
-                      {q.question}
-                    </h4>
+                    <div className="text-sm font-bold text-slate-900 dark:text-slate-100 leading-relaxed">
+                      <MarkdownText content={q.question} />
+                    </div>
 
                     <div className="flex items-center justify-between pt-1">
                       <span className="text-xs font-semibold text-emerald-600 dark:text-emerald-400">
@@ -3043,9 +3233,9 @@ function SearchView({ exams, quizzes, bookmarks, onToggleBookmark }) {
                             <span className="w-4 h-4 rounded-md bg-indigo-100 dark:bg-indigo-900/60 text-indigo-600 dark:text-indigo-300 flex items-center justify-center text-[10px]">💡</span>
                             <span>[1단계] 정답 핵심 원리 해설</span>
                           </span>
-                          <p className="text-xs text-slate-700 dark:text-slate-200 leading-relaxed whitespace-pre-line font-medium pl-0.5">
-                            {q.explanation}
-                          </p>
+                          <div className="text-xs text-slate-700 dark:text-slate-200 leading-relaxed font-medium pl-0.5">
+                            <MarkdownText content={q.explanation} />
+                          </div>
                         </div>
 
                         {/* 2. 1:1 Per-Option Flaw Analysis */}
@@ -3081,9 +3271,9 @@ function SearchView({ exams, quizzes, bookmarks, onToggleBookmark }) {
                                         </span>
                                       )}
                                     </div>
-                                    <p className="text-xs leading-relaxed pl-0.5">
-                                      {text}
-                                    </p>
+                                    <div className="text-xs leading-relaxed pl-0.5">
+                                      <MarkdownText content={text} />
+                                    </div>
                                   </div>
                                 );
                               })}
@@ -3099,9 +3289,9 @@ function SearchView({ exams, quizzes, bookmarks, onToggleBookmark }) {
                               <span className="text-xs font-black text-teal-800 dark:text-teal-300 block">
                                 [3단계] 비전공자 눈높이 개념 비유
                               </span>
-                              <p className="text-xs text-teal-950 dark:text-teal-100 leading-relaxed font-medium">
-                                {q.conceptMetaphor}
-                              </p>
+                              <div className="text-xs text-teal-950 dark:text-teal-100 leading-relaxed font-medium">
+                                <MarkdownText content={q.conceptMetaphor} />
+                              </div>
                             </div>
                           </div>
                         )}
@@ -3114,9 +3304,9 @@ function SearchView({ exams, quizzes, bookmarks, onToggleBookmark }) {
                               <span className="text-xs font-black text-amber-800 dark:text-amber-300 block">
                                 [4단계] 시험 직전 1초 암기 공식 & 함정 탈출 팁
                               </span>
-                              <p className="text-xs text-amber-950 dark:text-amber-100 font-semibold leading-relaxed">
-                                {q.coreTip}
-                              </p>
+                              <div className="text-xs text-amber-950 dark:text-amber-100 font-semibold leading-relaxed">
+                                <MarkdownText content={q.coreTip} />
+                              </div>
                             </div>
                           </div>
                         )}
