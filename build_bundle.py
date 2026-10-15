@@ -142,9 +142,9 @@ index_html = f"""<!DOCTYPE html>
   </div>
 
   <!-- Data Sets -->
-  <script src="data/examSets.js?v=50"></script>
-  <script src="data/quizSets.js?v=50"></script>
-  <script src="data/conceptBookData.js?v=50"></script>
+  <script src="data/examSets.js?v=51"></script>
+  <script src="data/quizSets.js?v=51"></script>
+  <script src="data/conceptBookData.js?v=51"></script>
 
   <!-- Unified Inlined Bundle for 100% Reliable Execution (Both file:/// and http://) -->
   <script type="text/babel">

@@ -97,6 +97,55 @@ function MarkdownText({ content, className = '' }) {
       continue;
     }
 
+    // Markdown Table: lines starting and ending with |
+    if (trimmed.startsWith('|') && trimmed.endsWith('|')) {
+      const tableLines = [];
+      let j = i;
+      while (j < lines.length && lines[j].trim().startsWith('|') && lines[j].trim().endsWith('|')) {
+        tableLines.push(lines[j].trim());
+        j++;
+      }
+      if (tableLines.length >= 2) {
+        i = j - 1; // advance main loop
+        const headerRow = tableLines[0].slice(1, -1).split('|').map(c => c.trim());
+        // Skip delimiter line (tableLines[1])
+        const dataRows = tableLines.slice(2);
+
+        const ths = headerRow.map((h, hi) =>
+          React.createElement('th', {
+            key: `th-${hi}`,
+            className: 'px-3 py-2 text-left font-black text-xs text-slate-800 dark:text-slate-200 border-b border-slate-200 dark:border-slate-700 bg-slate-100 dark:bg-slate-800'
+          }, parseInline(h.replace(/<br\s*\/?>/gi, ' '), `th-${hi}`))
+        );
+
+        const trs = dataRows.map((r, ri) => {
+          const cells = r.slice(1, -1).split('|').map(c => c.trim());
+          return React.createElement('tr', {
+            key: `tr-${ri}`,
+            className: 'hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors'
+          }, cells.map((c, ci) =>
+            React.createElement('td', {
+              key: `td-${ci}`,
+              className: 'px-3 py-1.5 text-xs text-slate-700 dark:text-slate-300 border-b border-slate-100 dark:border-slate-800/60 leading-relaxed font-medium'
+            }, parseInline(c.replace(/<br\s*\/?>/gi, ' '), `td-${ri}-${ci}`))
+          ));
+        });
+
+        elements.push(
+          React.createElement('div', {
+            key: `table-${i}`,
+            className: 'overflow-x-auto my-3 rounded-xl border border-slate-200 dark:border-slate-800 shadow-xs'
+          }, React.createElement('table', {
+            className: 'min-w-full divide-y divide-slate-200 dark:divide-slate-800 text-left'
+          }, [
+            React.createElement('thead', { key: 'thead' }, React.createElement('tr', {}, ths)),
+            React.createElement('tbody', { key: 'tbody' }, trs)
+          ]))
+        );
+        continue;
+      }
+    }
+
     // Blockquote: > Text
     if (trimmed.startsWith('> ')) {
       elements.push(
