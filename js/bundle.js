@@ -1341,7 +1341,9 @@ function ExamSelectView({ exams, examHistory, onSelectExam }) {
 
   const filteredExams = useMemo(() => {
     let list = exams;
-    if (examCategory === 'sina') {
+    if (examCategory === 'killer') {
+      list = exams.filter(e => e.id.includes('killer'));
+    } else if (examCategory === 'sina') {
       list = exams.filter(e => e.id.includes('sina'));
     } else if (examCategory === 'latest') {
       list = exams.filter(e => {
@@ -1427,6 +1429,7 @@ function ExamSelectView({ exams, examHistory, onSelectExam }) {
       <div className="flex flex-wrap items-center gap-2 pb-1">
         {[
           { id: 'all', label: `전체 기출 (${exams.length}회차)`, badge: null },
+          { id: 'killer', label: '💀 2026 초고난도 불시험 킬러관 (3회)', badge: '🔥 극상 난이도' },
           { id: 'sina', label: '📚 시나공 전용 실전 기출관 (6회)', badge: '교재 100% 매칭' },
           { id: 'latest', label: '🔥 최신 실전 기출 (48~41회)', badge: '2024~2026' },
           { id: 'past', label: '역대 기출 (40~35회 + 모의)', badge: null },
