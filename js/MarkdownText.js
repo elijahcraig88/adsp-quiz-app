@@ -6,10 +6,10 @@ function MarkdownText({ content, className = '' }) {
   if (!content) return null;
   if (typeof content !== 'string') return React.createElement('span', { className }, String(content));
 
-  // Parse inline elements (bold, code)
+  // Parse inline elements (bold, code, math)
   const parseInline = (text, keyPrefix = 'inline') => {
     if (!text) return null;
-    const regex = /(\*\*[^\n]+?\*\*|`[^`\n]+?`)/g;
+    const regex = /(\*\*[^\n]+?\*\*|`[^`\n]+?`|\$[^\$\n]+?\$)/g;
     const parts = text.split(regex);
 
     return parts.map((part, idx) => {
@@ -40,6 +40,18 @@ function MarkdownText({ content, className = '' }) {
         );
       }
 
+      // Inline Math: $math$ (safe fallback)
+      if (part.startsWith('$') && part.endsWith('$') && part.length >= 2) {
+        return React.createElement(
+          'span',
+          {
+            key,
+            className: 'font-mono text-[11px] sm:text-xs font-bold text-emerald-700 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/70 border border-emerald-200/70 dark:border-emerald-800/70 px-1.5 py-0.5 rounded-md shadow-xs mx-0.5'
+          },
+          part.slice(1, -1)
+        );
+      }
+
       return React.createElement('span', { key }, part);
     });
   };
@@ -60,6 +72,69 @@ function MarkdownText({ content, className = '' }) {
     // Empty line -> spacing
     if (!trimmed) {
       elements.push(React.createElement('div', { key: `empty-${i}`, className: 'h-1.5' }));
+      continue;
+    }
+
+    // Beginner Math Symbol Guide Card: 💡 [왕초보 수식 기호 완벽 풀이]
+    if (trimmed.startsWith('💡 [왕초보 수식 기호') || trimmed.startsWith('💡 **[왕초보 수식 기호') || trimmed.startsWith('[왕초보 수식 기호')) {
+      const guideLines = [];
+      let j = i + 1;
+      while (j < lines.length) {
+        const nextTrimmed = lines[j].trim();
+        if (!nextTrimmed) {
+          // Allow single empty line within card
+          if (j + 1 < lines.length && (lines[j + 1].trim().startsWith('•') || lines[j + 1].trim().startsWith('-') || lines[j + 1].trim().startsWith('*'))) {
+            j++;
+            continue;
+          }
+          break;
+        }
+        if (nextTrimmed.startsWith('[') || nextTrimmed.startsWith('📚') || nextTrimmed.startsWith('📖') || nextTrimmed.startsWith('🎯') || nextTrimmed.startsWith('💡 [')) {
+          break;
+        }
+        guideLines.push(nextTrimmed);
+        j++;
+      }
+      i = j - 1; // advance main loop
+
+      const itemElements = guideLines.map((gl, gIdx) => {
+        const cleanGl = gl.replace(/^[•\-\*]\s*/, '');
+        return React.createElement(
+          'div',
+          {
+            key: `guide-item-${gIdx}`,
+            className: 'flex items-start space-x-2 my-1 text-xs sm:text-[13px] leading-relaxed text-amber-950 dark:text-amber-100 font-medium'
+          },
+          [
+            React.createElement('span', { key: 'bullet', className: 'text-amber-500 dark:text-amber-400 font-bold shrink-0 mt-0.5 select-none' }, '•'),
+            React.createElement('div', { key: 'content', className: 'flex-1' }, parseInline(cleanGl, `guide-item-${gIdx}`))
+          ]
+        );
+      });
+
+      elements.push(
+        React.createElement(
+          'div',
+          {
+            key: `math-guide-${i}`,
+            className: 'my-3 p-3.5 sm:p-4 rounded-xl bg-amber-500/10 dark:bg-amber-400/10 border border-amber-500/30 dark:border-amber-400/25 shadow-xs'
+          },
+          [
+            React.createElement(
+              'div',
+              {
+                key: 'guide-title',
+                className: 'flex items-center space-x-2 font-black text-xs sm:text-sm text-amber-900 dark:text-amber-200 mb-2 pb-1.5 border-b border-amber-500/20 dark:border-amber-400/15'
+              },
+              [
+                React.createElement('span', { key: 'badge', className: 'px-2 py-0.5 rounded-full text-[10px] font-black bg-amber-500 text-white dark:bg-amber-400 dark:text-slate-950 shadow-xs' }, '왕초보 필독'),
+                React.createElement('span', { key: 'title-text' }, '수식 & 기호 완벽 풀이')
+              ]
+            ),
+            React.createElement('div', { key: 'guide-items', className: 'space-y-1' }, itemElements)
+          ]
+        )
+      );
       continue;
     }
 
