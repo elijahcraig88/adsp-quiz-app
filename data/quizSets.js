@@ -118,8 +118,8 @@ window.ADSP_QUIZZES = {
       "subject": 2,
       "statement": "기업의 분석 수준 진단에서 분석 준비도는 높으나 분석 성숙도가 낮은 상태는 정착형이다.",
       "isCorrect": false,
-      "explanation": "틀렸습니다. 준비도는 높으나 성숙도가 낮은 상태는 준비형입니다.",
-      "tip": "준비도 높음 + 성숙도 낮음 = 준비형 / 둘다 낮음 = 도입형"
+      "explanation": "틀렸습니다. 분석 준비도는 높으나 분석 성숙도가 낮은 상태는 '도입형(Introductory)'입니다. (정착형은 준비도는 낮으나 성숙도가 높은 상태입니다.)",
+      "tip": "준비형(낮/낮) · 정착형(낮/높) · 도입형(높/낮) · 확산형(높/높)"
     },
     {
       "id": "ox-16",
@@ -352,7 +352,7 @@ window.ADSP_QUIZZES = {
       "subject": 1,
       "sentence": "가공되지 않은 단순 사실인 데이터(Data), 의미가 부여된 [ 빈칸 ], 패턴화된 지식(Knowledge), 통찰이 담긴 지혜(Wisdom)로 구성된 정보 피라미드를 말한다.",
       "blankWord": "정보",
-      "chosung": "ㅈㅎ",
+      "chosung": "ㅈㅂ",
       "hint": "Information",
       "explanation": "DIKW: 데이터 → 정보 → 지식 → 지혜"
     },
@@ -432,10 +432,10 @@ window.ADSP_QUIZZES = {
       "id": "ch-10",
       "subject": 2,
       "sentence": "기업의 분석 수준 진단에서 분석 준비도는 높으나 분석 성숙도가 낮은 상태를 [ 빈칸 ]형이라고 부른다.",
-      "blankWord": "준비",
-      "chosung": "ㅈㅂ",
-      "hint": "준비도 높음 + 성숙도 낮음",
-      "explanation": "준비도는 높으나 성숙도가 낮으면 준비형입니다."
+      "blankWord": "도입",
+      "chosung": "ㄷㅇ",
+      "hint": "Introductory (준비도 높음 + 성숙도 낮음)",
+      "explanation": "분석 준비도는 높으나 분석 성숙도가 낮은 사분면은 도입형(Introductory)입니다. (준비형은 둘 다 낮음)"
     },
     {
       "id": "ch-11",

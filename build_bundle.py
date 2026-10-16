@@ -143,9 +143,9 @@ index_html = f"""<!DOCTYPE html>
   </div>
 
   <!-- Data Sets -->
-  <script src="data/examSets.js?v=56"></script>
-  <script src="data/quizSets.js?v=56"></script>
-  <script src="data/conceptBookData.js?v=56"></script>
+  <script src="data/examSets.js?v=57"></script>
+  <script src="data/quizSets.js?v=57"></script>
+  <script src="data/conceptBookData.js?v=57"></script>
 
   <!-- Unified Inlined Bundle for 100% Reliable Execution (Both file:/// and http://) -->
   <script type="text/babel">
