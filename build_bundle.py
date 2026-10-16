@@ -12,6 +12,7 @@ base_dir = os.path.dirname(os.path.abspath(__file__))
 components = [
     os.path.join(base_dir, "js", "MarkdownText.js"),
     os.path.join(base_dir, "js", "DashboardView.js"),
+    os.path.join(base_dir, "js", "ExamInfoView.js"),
     os.path.join(base_dir, "js", "ConceptBookView.js"),
     os.path.join(base_dir, "js", "ExamSelectView.js"),
     os.path.join(base_dir, "js", "ExamRunnerView.js"),
@@ -142,9 +143,9 @@ index_html = f"""<!DOCTYPE html>
   </div>
 
   <!-- Data Sets -->
-  <script src="data/examSets.js?v=55"></script>
-  <script src="data/quizSets.js?v=55"></script>
-  <script src="data/conceptBookData.js?v=55"></script>
+  <script src="data/examSets.js?v=56"></script>
+  <script src="data/quizSets.js?v=56"></script>
+  <script src="data/conceptBookData.js?v=56"></script>
 
   <!-- Unified Inlined Bundle for 100% Reliable Execution (Both file:/// and http://) -->
   <script type="text/babel">

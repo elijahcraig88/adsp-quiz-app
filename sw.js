@@ -1,13 +1,13 @@
 // ADsP Master Service Worker for Offline PWA Support
-const CACHE_NAME = 'adsp-master-v8';
+const CACHE_NAME = 'adsp-master-v9';
 const ASSETS_TO_CACHE = [
   './',
   './index.html',
   './manifest.json',
   './js/bundle.js',
-  './data/examSets.js?v=55',
-  './data/quizSets.js?v=55',
-  './data/conceptBookData.js?v=55',
+  './data/examSets.js?v=56',
+  './data/quizSets.js?v=56',
+  './data/conceptBookData.js?v=56',
   './icons/icon-192.png',
   './icons/icon-512.png',
   './icons/apple-touch-icon.png'

@@ -34,7 +34,7 @@ function DashboardView({ exams, quizzes, examHistory, wrongCount, bookmarkCount,
             <span className="text-yellow-300">실전 기출 50문항</span>과 <span className="text-purple-200">초밀착 퀴즈</span>로 정복!
           </h1>
           <p className="text-indigo-100 text-sm sm:text-base leading-relaxed">
-            최신 48회부터 41회 및 역대 기출문제(총 16개 회차 / 800문항) 풀이, 즉시 해설 학습모드, 헷갈리는 함정 선지 OX 퀴즈, 초성 빈칸 암기장까지 한 곳에서 완벽 마스터하세요.
+            최신 48회~35회 기출 및 초고난도 실전모의고사(총 25개 회차 / 1,250문항), 1:1 선지별 오답 정밀 분석, 핵심 용어 백과사전 670+, 시험 일정·과락 계산기까지 한 곳에서 완벽 마스터하세요.
           </p>
 
           <div className="flex flex-wrap gap-3 pt-2">
@@ -44,6 +44,13 @@ function DashboardView({ exams, quizzes, examHistory, wrongCount, bookmarkCount,
             >
               <span>⏱️</span>
               <span>최신 48회 실전 모의고사 (90분)</span>
+            </button>
+            <button
+              onClick={() => onNavigate('exam-info')}
+              className="px-5 py-3 rounded-2xl bg-indigo-500/40 hover:bg-indigo-500/60 active:scale-95 text-white font-bold text-sm backdrop-blur-md border border-white/20 transition-all flex items-center space-x-2"
+            >
+              <span>ℹ️</span>
+              <span>ADsP 시험 기본정보 & 일정</span>
             </button>
             <button
               onClick={() => onNavigate('quiz-corner')}

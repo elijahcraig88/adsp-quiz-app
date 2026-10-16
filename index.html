@@ -105,9 +105,9 @@
   </div>
 
   <!-- Data Sets -->
-  <script src="data/examSets.js?v=55"></script>
-  <script src="data/quizSets.js?v=55"></script>
-  <script src="data/conceptBookData.js?v=55"></script>
+  <script src="data/examSets.js?v=56"></script>
+  <script src="data/quizSets.js?v=56"></script>
+  <script src="data/conceptBookData.js?v=56"></script>
 
   <!-- Unified Inlined Bundle for 100% Reliable Execution (Both file:/// and http://) -->
   <script type="text/babel">
@@ -375,7 +375,7 @@ function DashboardView({ exams, quizzes, examHistory, wrongCount, bookmarkCount,
             <span className="text-yellow-300">실전 기출 50문항</span>과 <span className="text-purple-200">초밀착 퀴즈</span>로 정복!
           </h1>
           <p className="text-indigo-100 text-sm sm:text-base leading-relaxed">
-            최신 48회부터 41회 및 역대 기출문제(총 16개 회차 / 800문항) 풀이, 즉시 해설 학습모드, 헷갈리는 함정 선지 OX 퀴즈, 초성 빈칸 암기장까지 한 곳에서 완벽 마스터하세요.
+            최신 48회~35회 기출 및 초고난도 실전모의고사(총 25개 회차 / 1,250문항), 1:1 선지별 오답 정밀 분석, 핵심 용어 백과사전 670+, 시험 일정·과락 계산기까지 한 곳에서 완벽 마스터하세요.
           </p>
 
           <div className="flex flex-wrap gap-3 pt-2">
@@ -385,6 +385,13 @@ function DashboardView({ exams, quizzes, examHistory, wrongCount, bookmarkCount,
             >
               <span>⏱️</span>
               <span>최신 48회 실전 모의고사 (90분)</span>
+            </button>
+            <button
+              onClick={() => onNavigate('exam-info')}
+              className="px-5 py-3 rounded-2xl bg-indigo-500/40 hover:bg-indigo-500/60 active:scale-95 text-white font-bold text-sm backdrop-blur-md border border-white/20 transition-all flex items-center space-x-2"
+            >
+              <span>ℹ️</span>
+              <span>ADsP 시험 기본정보 & 일정</span>
             </button>
             <button
               onClick={() => onNavigate('quiz-corner')}
@@ -581,6 +588,475 @@ function DashboardView({ exams, quizzes, examHistory, wrongCount, bookmarkCount,
 
 // Export for app.js
 window.DashboardView = DashboardView;
+
+
+// === ExamInfoView.js ===
+// ADsP Master App - Official Exam Guide & Interactive Score Simulator View
+
+function ExamInfoView() {
+  // Interactive Score Calculator State (Question counts answered correctly)
+  const [s1Correct, setS1Correct] = useState(7); // out of 10
+  const [s2Correct, setS2Correct] = useState(7); // out of 10
+  const [s3Correct, setS3Correct] = useState(18); // out of 30
+
+  const s1Score = s1Correct * 2; // max 20, cutoff < 8 (4 questions)
+  const s2Score = s2Correct * 2; // max 20, cutoff < 8 (4 questions)
+  const s3Score = s3Correct * 2; // max 60, cutoff < 24 (12 questions)
+  const totalScore = s1Score + s2Score + s3Score;
+
+  const s1Cutoff = s1Score < 8;
+  const s2Cutoff = s2Score < 8;
+  const s3Cutoff = s3Score < 24;
+  const anyCutoff = s1Cutoff || s2Cutoff || s3Cutoff;
+  const isPass = totalScore >= 60 && !anyCutoff;
+
+  const schedule2026 = [
+    {
+      round: '제48회',
+      applyPeriod: '2026. 01. 19 (월) ~ 01. 23 (금)',
+      examDate: '2026. 02. 21 (토) 10:00',
+      prelimDate: '2026. 03. 06 (금)',
+      finalDate: '2026. 03. 20 (금)',
+      badge: '상반기 1차'
+    },
+    {
+      round: '제49회',
+      applyPeriod: '2026. 04. 13 (월) ~ 04. 17 (금)',
+      examDate: '2026. 05. 16 (토) 10:00',
+      prelimDate: '2026. 05. 29 (금)',
+      finalDate: '2026. 06. 12 (금)',
+      badge: '상반기 2차'
+    },
+    {
+      round: '제50회',
+      applyPeriod: '2026. 07. 13 (월) ~ 07. 17 (금)',
+      examDate: '2026. 08. 15 (토) 10:00',
+      prelimDate: '2026. 08. 28 (금)',
+      finalDate: '2026. 09. 11 (금)',
+      badge: '하반기 1차'
+    },
+    {
+      round: '제51회',
+      applyPeriod: '2026. 10. 05 (월) ~ 10. 09 (금)',
+      examDate: '2026. 11. 07 (토) 10:00',
+      prelimDate: '2026. 11. 20 (금)',
+      finalDate: '2026. 12. 04 (금)',
+      badge: '하반기 2차'
+    }
+  ];
+
+  const passRateHistory = [
+    { year: '2021년 (제28~31회)', applicants: '약 38,000명', passRate: '46.2%', trend: '비전공자 응시 급증 시기' },
+    { year: '2022년 (제32~35회)', applicants: '약 51,000명', passRate: '42.8%', trend: '3과목 계산·응용 문항 강화' },
+    { year: '2023년 (제36~39회)', applicants: '약 64,000명', passRate: '39.5%', trend: '지엽적 개념·R 결과 해석 심화' },
+    { year: '2024년 (제40~43회)', applicants: '약 75,000명', passRate: '43.1%', trend: '단답형 폐지 → 전 문항 객관식 50문항 개편' },
+    { year: '2025~2026년 최근 추세', applicants: '연 85,000명+', passRate: '35% ~ 45% 내외', trend: '단순 암기 지양, 선지 함정 및 실무 복합형 출제' }
+  ];
+
+  return (
+    <div className="space-y-8 animate-fadeIn pb-16 max-w-5xl mx-auto">
+      {/* Hero Banner */}
+      <div className="bg-gradient-to-br from-indigo-600 via-indigo-700 to-purple-800 rounded-3xl p-6 sm:p-8 text-white shadow-xl relative overflow-hidden">
+        <div className="relative z-10 space-y-3">
+          <div className="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-white/15 text-xs font-extrabold backdrop-blur-sm">
+            <span>ℹ️ 국가공인 데이터분석 준전문가 (ADsP) 공식 시험 가이드</span>
+          </div>
+          <h1 className="text-2xl sm:text-3xl font-black tracking-tight">
+            ADsP 시험 기본 정보 & 합격 전략 총정리
+          </h1>
+          <p className="text-xs sm:text-sm text-indigo-100 max-w-2xl leading-relaxed">
+            한국데이터산업진흥원(K-Data)이 주관하는 국가공인 민간자격시험(제2014-01호) ADsP의 시행 횟수, 연간 시험 일정, 시험 시간, 합격/과락 기준, 역대 합격률 및 응시료를 한눈에 확인하세요.
+          </p>
+        </div>
+
+        {/* Top 5 Quick Summary Cards */}
+        <div className="grid grid-cols-2 sm:grid-cols-5 gap-3 mt-6 relative z-10">
+          <div className="bg-white/10 backdrop-blur-md border border-white/15 rounded-2xl p-3.5">
+            <div className="text-[11px] text-indigo-200 font-bold">매년 시행 횟수</div>
+            <div className="text-lg sm:text-xl font-black mt-0.5">연 4회 정기</div>
+            <div className="text-[10px] text-indigo-200 mt-0.5">2월 · 5월 · 8월 · 11월</div>
+          </div>
+          <div className="bg-white/10 backdrop-blur-md border border-white/15 rounded-2xl p-3.5">
+            <div className="text-[11px] text-indigo-200 font-bold">시험 시간</div>
+            <div className="text-lg sm:text-xl font-black mt-0.5">총 90분</div>
+            <div className="text-[10px] text-indigo-200 mt-0.5">10:00~11:30 (09:30 입실)</div>
+          </div>
+          <div className="bg-white/10 backdrop-blur-md border border-white/15 rounded-2xl p-3.5">
+            <div className="text-[11px] text-indigo-200 font-bold">문항 수 / 형태</div>
+            <div className="text-lg sm:text-xl font-black mt-0.5">객관식 50문항</div>
+            <div className="text-[10px] text-indigo-200 mt-0.5">4지선다 (단답형 폐지!)</div>
+          </div>
+          <div className="bg-white/10 backdrop-blur-md border border-white/15 rounded-2xl p-3.5">
+            <div className="text-[11px] text-indigo-200 font-bold">합격 & 과락 기준</div>
+            <div className="text-lg sm:text-xl font-black mt-0.5">총점 60점 이상</div>
+            <div className="text-[10px] text-amber-300 font-bold mt-0.5">과목별 40% 미만 과락</div>
+          </div>
+          <div className="bg-white/10 backdrop-blur-md border border-white/15 rounded-2xl p-3.5 col-span-2 sm:col-span-1">
+            <div className="text-[11px] text-indigo-200 font-bold">응시료 / 자격</div>
+            <div className="text-lg sm:text-xl font-black mt-0.5">50,000원</div>
+            <div className="text-[10px] text-indigo-200 mt-0.5">학력·경력 응시제한 없음</div>
+          </div>
+        </div>
+      </div>
+
+      {/* Section 1: 과목별 문항 수 · 배점 · 과락 기준표 */}
+      <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-6 shadow-sm space-y-4">
+        <div className="flex items-center justify-between flex-wrap gap-2">
+          <div>
+            <h2 className="text-lg font-black text-slate-900 dark:text-slate-100 flex items-center space-x-2">
+              <span>📊</span>
+              <span>과목별 문항 수 · 배점 · 합격 및 과락 기준</span>
+            </h2>
+            <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+              제40회(2024년)부터 주관식 단답형(10문항)이 전면 폐지되고 전 문항 4지선다 객관식(문항당 2점, 총 50문항 100점 만점)으로 개편되었습니다.
+            </p>
+          </div>
+          <span className="px-3 py-1 rounded-xl bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 text-xs font-extrabold">
+            ✓ 문항당 각 2점 · 총 100점 만점
+          </span>
+        </div>
+
+        <div className="overflow-x-auto">
+          <table className="w-full text-left border-collapse text-xs sm:text-sm">
+            <thead>
+              <tr className="bg-slate-100 dark:bg-slate-800/80 text-slate-700 dark:text-slate-300 font-extrabold border-b border-slate-200 dark:border-slate-700">
+                <th className="py-3 px-4 rounded-tl-xl">과목명</th>
+                <th className="py-3 px-4">주요 출제 단원</th>
+                <th className="py-3 px-4 text-center">문항 수</th>
+                <th className="py-3 px-4 text-center">배점 (만점)</th>
+                <th className="py-3 px-4 text-center rounded-tr-xl">과락 면제 기준 (40% 이상)</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-slate-200 dark:divide-slate-800 font-medium">
+              <tr className="hover:bg-slate-50/70 dark:hover:bg-slate-800/40">
+                <td className="py-3.5 px-4 font-black text-indigo-600 dark:text-indigo-400">1과목: 데이터 이해</td>
+                <td className="py-3.5 px-4 text-slate-600 dark:text-slate-300">데이터의 이해(DIKW, DB, DW/Lake), 데이터의 가치와 미래(빅데이터 3V/4V, 비식별화, 위기요인), 가치창조를 위한 데이터 사이언스와 전략 인사이트</td>
+                <td className="py-3.5 px-4 text-center font-bold">10문항</td>
+                <td className="py-3.5 px-4 text-center font-bold">20점 (20%)</td>
+                <td className="py-3.5 px-4 text-center">
+                  <span className="px-2.5 py-1 rounded-lg bg-rose-50 dark:bg-rose-950/50 text-rose-600 dark:text-rose-400 font-black text-xs">
+                    최소 4문항 (8점) 이상 필수
+                  </span>
+                </td>
+              </tr>
+              <tr className="hover:bg-slate-50/70 dark:hover:bg-slate-800/40">
+                <td className="py-3.5 px-4 font-black text-purple-600 dark:text-purple-400">2과목: 데이터 분석 기획</td>
+                <td className="py-3.5 px-4 text-slate-600 dark:text-slate-300">데이터 분석 기획의 이해(KDD, CRISP-DM, 하향식/상향식), 분석 마스터 플랜(우선순위 시급성/난이도, 준비도/성숙도 4분면, 분석 거버넌스 및 조직 구조)</td>
+                <td className="py-3.5 px-4 text-center font-bold">10문항</td>
+                <td className="py-3.5 px-4 text-center font-bold">20점 (20%)</td>
+                <td className="py-3.5 px-4 text-center">
+                  <span className="px-2.5 py-1 rounded-lg bg-rose-50 dark:bg-rose-950/50 text-rose-600 dark:text-rose-400 font-black text-xs">
+                    최소 4문항 (8점) 이상 필수
+                  </span>
+                </td>
+              </tr>
+              <tr className="hover:bg-slate-50/70 dark:hover:bg-slate-800/40">
+                <td className="py-3.5 px-4 font-black text-emerald-600 dark:text-emerald-400">3과목: 데이터 분석</td>
+                <td className="py-3.5 px-4 text-slate-600 dark:text-slate-300">R기초와 데이터 마트(결측치, 이상치, reshape2/plyr), 통계분석(표본추출, 가설검정, 분산분석, 회귀분석, 시계열), 정형 데이터 마이닝(분류, 혼동행렬/ROC, 군집, 연관분석)</td>
+                <td className="py-3.5 px-4 text-center font-bold">30문항</td>
+                <td className="py-3.5 px-4 text-center font-bold">60점 (60%)</td>
+                <td className="py-3.5 px-4 text-center">
+                  <span className="px-2.5 py-1 rounded-lg bg-rose-50 dark:bg-rose-950/50 text-rose-600 dark:text-rose-400 font-black text-xs">
+                    최소 12문항 (24점) 이상 필수
+                  </span>
+                </td>
+              </tr>
+            </tbody>
+            <tfoot>
+              <tr className="bg-indigo-50/70 dark:bg-indigo-950/40 font-black text-slate-900 dark:text-slate-100 border-t-2 border-indigo-200 dark:border-indigo-800">
+                <td className="py-3.5 px-4 rounded-bl-xl">합계 (최종 합격 기준)</td>
+                <td className="py-3.5 px-4 text-indigo-700 dark:text-indigo-300">세 과목 모두 과락(40% 미만)이 없으면서 총점 60점(30문항) 이상 득점 시 최종 합격</td>
+                <td className="py-3.5 px-4 text-center">총 50문항</td>
+                <td className="py-3.5 px-4 text-center">100점 만점</td>
+                <td className="py-3.5 px-4 text-center rounded-br-xl text-emerald-600 dark:text-emerald-400">
+                  총 30문항 (60점) 이상 합격!
+                </td>
+              </tr>
+            </tfoot>
+          </table>
+        </div>
+
+        {/* Warnings */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
+          <div className="p-4 rounded-2xl bg-rose-50/70 dark:bg-rose-950/30 border border-rose-200 dark:border-rose-800/60 text-xs space-y-1">
+            <div className="font-black text-rose-700 dark:text-rose-300">🚨 과락(40% 미만) 주의보!</div>
+            <p className="text-slate-700 dark:text-slate-300 leading-relaxed">
+              총점이 60점(30개)을 넘더라도 <strong>1과목이나 2과목에서 3문제 이하(6점 이하)</strong>를 맞히거나, <strong>3과목에서 11문제 이하(22점 이하)</strong>를 맞히면 <strong>과락으로 즉시 불합격</strong> 처리됩니다.
+            </p>
+          </div>
+          <div className="p-4 rounded-2xl bg-indigo-50/70 dark:bg-indigo-950/30 border border-indigo-200 dark:border-indigo-800/60 text-xs space-y-1">
+            <div className="font-black text-indigo-700 dark:text-indigo-300">🎯 가장 이상적인 합격 목표 점수 조합</div>
+            <p className="text-slate-700 dark:text-slate-300 leading-relaxed">
+              분량이 적고 암기 효율이 높은 <strong>1과목(8문제=16점 목표) + 2과목(8문제=16점 목표)에서 32점을 확보</strong>하면, 가장 어려운 <strong>3과목은 30문제 중 절반인 14~15문제(28~30점)만 맞혀도 안전하게 합격(60~62점)</strong>할 수 있습니다!
+            </p>
+          </div>
+        </div>
+      </div>
+
+      {/* Section 2: 실시간 합격 · 과락 시뮬레이션 계산기 */}
+      <div className="bg-white dark:bg-slate-900 border-2 border-indigo-200 dark:border-indigo-800/80 rounded-3xl p-6 shadow-sm space-y-5">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+          <div>
+            <h2 className="text-lg font-black text-slate-900 dark:text-slate-100 flex items-center space-x-2">
+              <span>🧮</span>
+              <span>실시간 합격 · 과락 시뮬레이션 계산기</span>
+            </h2>
+            <p className="text-xs text-slate-500 dark:text-slate-400">
+              슬라이더를 움직여 과목별 맞힌 문항 수에 따른 총점과 과락 여부를 즉시 시뮬레이션해 보세요.
+            </p>
+          </div>
+          <div className={`px-4 py-2 rounded-2xl font-black text-sm flex items-center space-x-2 ${
+            isPass
+              ? 'bg-emerald-600 text-white shadow-md'
+              : 'bg-rose-600 text-white shadow-md'
+          }`}>
+            <span>{isPass ? '🎉 최종 합격 (PASS)' : '⚠️ 불합격 (FAIL)'}</span>
+            <span>·</span>
+            <span>총점 {totalScore}점 ({s1Correct + s2Correct + s3Correct}/50문항)</span>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          {/* Subject 1 Slider */}
+          <div className={`p-4 rounded-2xl border ${s1Cutoff ? 'border-rose-300 bg-rose-50/50 dark:bg-rose-950/20' : 'border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/40'} space-y-2`}>
+            <div className="flex justify-between items-center">
+              <span className="text-xs font-black text-indigo-600 dark:text-indigo-400">1과목 데이터 이해</span>
+              <span className={`text-xs font-black px-2 py-0.5 rounded ${s1Cutoff ? 'bg-rose-600 text-white' : 'bg-emerald-100 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-300'}`}>
+                {s1Correct}/10문항 ({s1Score}점) {s1Cutoff ? '🚨과락' : '✓통과'}
+              </span>
+            </div>
+            <input
+              type="range"
+              min="0"
+              max="10"
+              value={s1Correct}
+              onChange={e => setS1Correct(Number(e.target.value))}
+              className="w-full accent-indigo-600 cursor-pointer"
+            />
+            <div className="text-[11px] text-slate-500 flex justify-between">
+              <span>0문항 (0점)</span>
+              <span className="text-rose-500 font-bold">과락선: 4문항(8점)</span>
+              <span>10문항 (20점)</span>
+            </div>
+          </div>
+
+          {/* Subject 2 Slider */}
+          <div className={`p-4 rounded-2xl border ${s2Cutoff ? 'border-rose-300 bg-rose-50/50 dark:bg-rose-950/20' : 'border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/40'} space-y-2`}>
+            <div className="flex justify-between items-center">
+              <span className="text-xs font-black text-purple-600 dark:text-purple-400">2과목 데이터 분석 기획</span>
+              <span className={`text-xs font-black px-2 py-0.5 rounded ${s2Cutoff ? 'bg-rose-600 text-white' : 'bg-emerald-100 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-300'}`}>
+                {s2Correct}/10문항 ({s2Score}점) {s2Cutoff ? '🚨과락' : '✓통과'}
+              </span>
+            </div>
+            <input
+              type="range"
+              min="0"
+              max="10"
+              value={s2Correct}
+              onChange={e => setS2Correct(Number(e.target.value))}
+              className="w-full accent-purple-600 cursor-pointer"
+            />
+            <div className="text-[11px] text-slate-500 flex justify-between">
+              <span>0문항 (0점)</span>
+              <span className="text-rose-500 font-bold">과락선: 4문항(8점)</span>
+              <span>10문항 (20점)</span>
+            </div>
+          </div>
+
+          {/* Subject 3 Slider */}
+          <div className={`p-4 rounded-2xl border ${s3Cutoff ? 'border-rose-300 bg-rose-50/50 dark:bg-rose-950/20' : 'border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/40'} space-y-2`}>
+            <div className="flex justify-between items-center">
+              <span className="text-xs font-black text-emerald-600 dark:text-emerald-400">3과목 데이터 분석</span>
+              <span className={`text-xs font-black px-2 py-0.5 rounded ${s3Cutoff ? 'bg-rose-600 text-white' : 'bg-emerald-100 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-300'}`}>
+                {s3Correct}/30문항 ({s3Score}점) {s3Cutoff ? '🚨과락' : '✓통과'}
+              </span>
+            </div>
+            <input
+              type="range"
+              min="0"
+              max="30"
+              value={s3Correct}
+              onChange={e => setS3Correct(Number(e.target.value))}
+              className="w-full accent-emerald-600 cursor-pointer"
+            />
+            <div className="text-[11px] text-slate-500 flex justify-between">
+              <span>0문항 (0점)</span>
+              <span className="text-rose-500 font-bold">과락선: 12문항(24점)</span>
+              <span>30문항 (60점)</span>
+            </div>
+          </div>
+        </div>
+
+        <div className="text-xs font-semibold px-4 py-3 rounded-2xl bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 flex items-center justify-between flex-wrap gap-2">
+          <span>
+            판정 결과 상세: {isPass
+              ? `총점 ${totalScore}점(≥60점)이며 전 과목 40% 이상 득점하여 합격 기준을 완벽히 충족했습니다!`
+              : anyCutoff
+                ? `총점은 ${totalScore}점이나, 과락 기준 미달 과목(${[s1Cutoff && '1과목(<8점)', s2Cutoff && '2과목(<8점)', s3Cutoff && '3과목(<24점)'].filter(Boolean).join(', ')})이 발생하여 불합격입니다.`
+                : `과락인 과목은 없으나 총점이 ${totalScore}점으로 합격 기준(60점)에 ${60 - totalScore}점(${(60 - totalScore) / 2}문항) 부족합니다.`
+            }
+          </span>
+          <button
+            onClick={() => { setS1Correct(8); setS2Correct(8); setS3Correct(15); }}
+            className="text-indigo-600 dark:text-indigo-400 font-bold hover:underline"
+          >
+            추천 안전 합격선(16+16+30=62점) 세팅하기 ↺
+          </button>
+        </div>
+      </div>
+
+      {/* Section 3: 연간 시험 일정 (연 4회 정기 시행) */}
+      <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-6 shadow-sm space-y-4">
+        <div className="flex items-center justify-between flex-wrap gap-2">
+          <div>
+            <h2 className="text-lg font-black text-slate-900 dark:text-slate-100 flex items-center space-x-2">
+              <span>📅</span>
+              <span>매년 시험 시행 횟수 및 2026년 정기시험 일정 (연 4회)</span>
+            </h2>
+            <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+              ADsP는 매년 <strong>2월 · 5월 · 8월 · 11월 (연 4회)</strong> 토요일 오전에 전국 고사장에서 정기 시행됩니다. (원서접수: 데이터자격검정 dataq.or.kr)
+            </p>
+          </div>
+          <span className="px-3 py-1 rounded-xl bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-300 text-xs font-extrabold">
+            주관: 한국데이터산업진흥원 (K-Data)
+          </span>
+        </div>
+
+        <div className="overflow-x-auto">
+          <table className="w-full text-left border-collapse text-xs sm:text-sm">
+            <thead>
+              <tr className="bg-slate-100 dark:bg-slate-800/80 text-slate-700 dark:text-slate-300 font-extrabold border-b border-slate-200 dark:border-slate-700">
+                <th className="py-3 px-4 rounded-tl-xl">회차 구분</th>
+                <th className="py-3 px-4">원서 접수 기간</th>
+                <th className="py-3 px-4">시험 시행일 (토요일)</th>
+                <th className="py-3 px-4">사전 점수 (가답안) 발표</th>
+                <th className="py-3 px-4 rounded-tr-xl">최종 합격자 발표</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-slate-200 dark:divide-slate-800 font-medium">
+              {schedule2026.map((row, idx) => (
+                <tr key={idx} className="hover:bg-slate-50/70 dark:hover:bg-slate-800/40">
+                  <td className="py-3.5 px-4 font-black text-indigo-600 dark:text-indigo-400">
+                    {row.round} <span className="ml-1 text-[10px] px-2 py-0.5 rounded bg-indigo-50 dark:bg-indigo-950 text-indigo-600 dark:text-indigo-300">{row.badge}</span>
+                  </td>
+                  <td className="py-3.5 px-4 text-slate-700 dark:text-slate-300">{row.applyPeriod}</td>
+                  <td className="py-3.5 px-4 font-black text-slate-900 dark:text-slate-100">{row.examDate}</td>
+                  <td className="py-3.5 px-4 text-slate-600 dark:text-slate-400">{row.prelimDate}</td>
+                  <td className="py-3.5 px-4 font-bold text-emerald-600 dark:text-emerald-400">{row.finalDate}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+        <p className="text-[11px] text-slate-400">
+          * 수험표는 시험일 약 2주 전 금요일부터 출력 가능하며, 세부 일시는 한국데이터산업진흥원 데이터자격검정(www.dataq.or.kr) 공고에 따라 일부 조정될 수 있습니다.
+        </p>
+      </div>
+
+      {/* Section 4: 시험 시간 · 입퇴실 규정 & 응시료 · 준비물 */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {/* 시험 시간 & 입퇴실 */}
+        <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-6 shadow-sm space-y-4">
+          <h2 className="text-base sm:text-lg font-black text-slate-900 dark:text-slate-100 flex items-center space-x-2">
+            <span>⏰</span>
+            <span>시험 시간 및 고사장 입·퇴실 규정</span>
+          </h2>
+          <div className="space-y-3 text-xs sm:text-sm">
+            <div className="flex items-start justify-between p-3.5 rounded-2xl bg-slate-50 dark:bg-slate-800/50">
+              <span className="font-bold text-slate-600 dark:text-slate-300">입실 마감 시각</span>
+              <span className="font-black text-rose-600 dark:text-rose-400">오전 09:30 까지 (09:30 이후 입실 절대 불가)</span>
+            </div>
+            <div className="flex items-start justify-between p-3.5 rounded-2xl bg-slate-50 dark:bg-slate-800/50">
+              <span className="font-bold text-slate-600 dark:text-slate-300">시험 진행 시간</span>
+              <span className="font-black text-indigo-600 dark:text-indigo-400">오전 10:00 ~ 11:30 (총 90분간 진행)</span>
+            </div>
+            <div className="flex items-start justify-between p-3.5 rounded-2xl bg-slate-50 dark:bg-slate-800/50">
+              <span className="font-bold text-slate-600 dark:text-slate-300">중도 퇴실 가능 시각</span>
+              <span className="font-bold text-slate-800 dark:text-slate-200">시험 시작 30분 경과 후 (10:30 이후) 퇴실 가능</span>
+            </div>
+            <div className="flex items-start justify-between p-3.5 rounded-2xl bg-slate-50 dark:bg-slate-800/50">
+              <span className="font-bold text-slate-600 dark:text-slate-300">시험 방식</span>
+              <span className="font-bold text-slate-800 dark:text-slate-200">PBT (종이 문제지 + OMR 카드 컴퓨터용 사인펜 마킹)</span>
+            </div>
+          </div>
+        </div>
+
+        {/* 응시료 & 준비물 */}
+        <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-6 shadow-sm space-y-4">
+          <h2 className="text-base sm:text-lg font-black text-slate-900 dark:text-slate-100 flex items-center space-x-2">
+            <span>💳</span>
+            <span>응시료 · 환불 규정 및 필수 준비물</span>
+          </h2>
+          <div className="space-y-3 text-xs sm:text-sm">
+            <div className="flex items-start justify-between p-3.5 rounded-2xl bg-slate-50 dark:bg-slate-800/50">
+              <span className="font-bold text-slate-600 dark:text-slate-300">응시 수수료</span>
+              <span className="font-black text-emerald-600 dark:text-emerald-400">50,000원 (부가세 포함)</span>
+            </div>
+            <div className="flex items-start justify-between p-3.5 rounded-2xl bg-slate-50 dark:bg-slate-800/50">
+              <span className="font-bold text-slate-600 dark:text-slate-300">응시료 환불 규정</span>
+              <span className="font-semibold text-slate-700 dark:text-slate-300 text-right">접수기간 내 취소: 100% 환불<br/>접수 마감 후 ~ 시험 5일 전: 50% 환불</span>
+            </div>
+            <div className="flex items-start justify-between p-3.5 rounded-2xl bg-slate-50 dark:bg-slate-800/50">
+              <span className="font-bold text-slate-600 dark:text-slate-300">필수 지참 신분증</span>
+              <span className="font-semibold text-slate-700 dark:text-slate-300 text-right">주민등록증, 운전면허증, 기간만료 전 여권, 모바일 신분증(정부24/PASS)</span>
+            </div>
+            <div className="flex items-start justify-between p-3.5 rounded-2xl bg-slate-50 dark:bg-slate-800/50">
+              <span className="font-bold text-slate-600 dark:text-slate-300">필기구 및 계산기</span>
+              <span className="font-semibold text-slate-700 dark:text-slate-300 text-right">컴퓨터용 흑색 사인펜, 수정테이프 가능<br/>(전자계산기 지참 및 사용 불가!)</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Section 5: 역대 합격률 추이 및 최근 출제 경향 */}
+      <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-6 shadow-sm space-y-4">
+        <div className="flex items-center justify-between flex-wrap gap-2">
+          <div>
+            <h2 className="text-lg font-black text-slate-900 dark:text-slate-100 flex items-center space-x-2">
+              <span>📈</span>
+              <span>ADsP 역대 합격률 추이 및 최근 출제 트렌드</span>
+            </h2>
+            <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+              ADsP의 평균 합격률은 <strong>약 35% ~ 45% 내외</strong>로, 회차별 난이도에 따라 편차가 있어 기출 선지의 정확한 오답 원리 학습이 필수입니다.
+            </p>
+          </div>
+          <span className="px-3 py-1 rounded-xl bg-amber-50 dark:bg-amber-950/60 text-amber-700 dark:text-amber-300 text-xs font-extrabold">
+            평균 합격률: 약 40.5%
+          </span>
+        </div>
+
+        <div className="overflow-x-auto">
+          <table className="w-full text-left border-collapse text-xs sm:text-sm">
+            <thead>
+              <tr className="bg-slate-100 dark:bg-slate-800/80 text-slate-700 dark:text-slate-300 font-extrabold border-b border-slate-200 dark:border-slate-700">
+                <th className="py-3 px-4 rounded-tl-xl">연도 (회차)</th>
+                <th className="py-3 px-4">연간 응시 인원</th>
+                <th className="py-3 px-4 text-center">평균 합격률</th>
+                <th className="py-3 px-4 rounded-tr-xl">핵심 출제 경향 및 난이도 특징</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-slate-200 dark:divide-slate-800 font-medium">
+              {passRateHistory.map((item, idx) => (
+                <tr key={idx} className="hover:bg-slate-50/70 dark:hover:bg-slate-800/40">
+                  <td className="py-3 px-4 font-black text-slate-900 dark:text-slate-100">{item.year}</td>
+                  <td className="py-3 px-4 text-slate-600 dark:text-slate-300">{item.applicants}</td>
+                  <td className="py-3 px-4 text-center">
+                    <span className="px-2.5 py-1 rounded-lg bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 font-black">
+                      {item.passRate}
+                    </span>
+                  </td>
+                  <td className="py-3 px-4 text-slate-600 dark:text-slate-300">{item.trend}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+window.ExamInfoView = ExamInfoView;
 
 
 // === ConceptBookView.js ===
@@ -3175,49 +3651,156 @@ window.WrongNotesView = WrongNotesView;
 
 
 // === SearchView.js ===
-// ADsP Master App - Full Search & Keyword Glossary View
+// ADsP Master App - Full Search & Keyword Glossary Encyclopedia View
 
 function SearchView({ exams, quizzes, bookmarks, onToggleBookmark }) {
   const [query, setQuery] = useState('');
-  const [activeCategory, setActiveCategory] = useState('all'); // 'all', 'questions', 'terms'
+  const [activeCategory, setActiveCategory] = useState('all'); // 'all', 'terms', 'concepts', 'questions'
+  const [browseSubject, setBrowseSubject] = useState(0); // 0=전체, 1=1과목, 2=2과목, 3=3과목
+  const [visibleTermCount, setVisibleTermCount] = useState(40);
   const [expandedQId, setExpandedQId] = useState(null);
+
+  // Synonym & Acronym expansion dictionary so casual searches always match
+  const SYNONYM_MAP = useMemo(() => ({
+    'dw': ['데이터 웨어하우스', 'data warehouse', '웨어하우스'],
+    'dm': ['데이터 마트', 'data mart'],
+    'ods': ['운영 데이터 저장소', 'operational data store'],
+    'oltp': ['온라인 트랜잭션', '트랜잭션 처리'],
+    'olap': ['온라인 분석', '다차원 분석'],
+    'eda': ['탐색적 데이터 분석', 'exploratory'],
+    'pca': ['주성분', '차원 축소', '차원축소', 'prcomp'],
+    'mds': ['다차원 척도법', '스트레스', 'stress'],
+    'vif': ['다중공선성', '분산팽창'],
+    'anova': ['분산분석', 'f-검정', 'f검정', 'aov'],
+    'roc': ['auc', '민감도', '특이도', '재현율'],
+    'auc': ['roc', '곡선 아래 면적'],
+    'iqr': ['사분위수', '이상치', 'boxplot', '상자수염'],
+    'esd': ['이상치', '3시그마', '표준편차'],
+    'knn': ['최근접 이웃', '게으른 학습'],
+    'svm': ['서포트 벡터', '마진', '초평면', '커널'],
+    'som': ['자기조직화지도', '코호넨', '경쟁층'],
+    'ann': ['인공신경망', '신경망', '퍼셉트론'],
+    'mlp': ['다층 퍼셉트론', '은닉층'],
+    'arima': ['시계열', '차분', '정상성', '자기회귀', '이동평균'],
+    'acf': ['자기상관함수', 'pacf', '절단'],
+    'pacf': ['편자기상관함수', 'acf', '절단'],
+    'mcar': ['완전 무작위 결측', '결측치'],
+    'mar': ['무작위 결측', '결측치'],
+    'mnar': ['비무작위 결측', 'nmar', '결측치'],
+    'seci': ['암묵지', '형식지', '공통화', '표출화', '연결화', '내면화'],
+    'dikw': ['데이터', '정보', '지식', '지혜', '피라미드'],
+    'crisp': ['crisp-dm', '업무 이해', '데이터 준비'],
+    'kdd': ['데이터셋 선택', '전처리', '변환', '마이닝'],
+    'lift': ['향상도', '연관규칙', '지지도', '신뢰도', '장바구니'],
+    '향상도': ['lift', '지지도', '신뢰도', '연관'],
+    '오즈': ['odds', '로지스틱', '로짓', 'logit'],
+    '가지치기': ['pruning', '의사결정나무', '과적합'],
+    '지니': ['gini', '불순도', 'cart', '의사결정나무'],
+    '엔트로피': ['entropy', '불순도', 'c4.5', '정보이득'],
+    '배깅': ['bagging', '부트스트랩', '랜덤 포레스트', '분산 감소'],
+    '부스팅': ['boosting', '에이다부스트', 'gbm', 'xgboost', '편향 감소'],
+    '정밀도': ['precision', '혼동행렬', '재현율'],
+    '재현율': ['recall', '민감도', 'sensitivity'],
+    '특이도': ['specificity', '위양성률'],
+    '1종 오류': ['제1종 오류', '유의수준', '귀무가설'],
+    '2종 오류': ['제2종 오류', '검정력', '귀무가설'],
+    '과락': ['40%', '합격기준', '60점']
+  }), []);
+
+  // Multi-token smart matcher
+  const matchesQuery = useCallback((targetText, rawQuery) => {
+    if (!targetText || !rawQuery) return false;
+    const hay = targetText.toLowerCase();
+    const qClean = rawQuery.toLowerCase().trim();
+    if (hay.includes(qClean)) return true;
+
+    // Split by whitespace, commas, slashes, middle dots
+    const tokens = qClean.split(/[\s,·/|+]+/).filter(Boolean);
+    if (tokens.length === 0) return false;
+
+    // Every token (or one of its synonyms) must appear in the target text
+    return tokens.every(tok => {
+      if (hay.includes(tok)) return true;
+      const syns = SYNONYM_MAP[tok];
+      if (syns && syns.some(s => hay.includes(s.toLowerCase()))) return true;
+      return false;
+    });
+  }, [SYNONYM_MAP]);
+
+  // Flatten Concept Book topics for search
+  const conceptTopics = useMemo(() => {
+    const cb = window.ADSP_CONCEPT_BOOK;
+    if (!cb || !cb.subjects) return [];
+    const list = [];
+    cb.subjects.forEach(subj => {
+      (subj.chapters || []).forEach(ch => {
+        (ch.topics || []).forEach(tp => {
+          list.push({
+            ...tp,
+            subjectId: subj.id,
+            subjectTitle: subj.title,
+            chapterTitle: ch.title
+          });
+        });
+      });
+    });
+    return list;
+  }, []);
+
+  // Search across flashcards / glossary (673+ terms)
+  const matchedTerms = useMemo(() => {
+    const cards = quizzes?.flashcards || [];
+    if (!query || !query.trim()) return [];
+    return cards.filter(c => {
+      const combined = `${c.term || ''} ${c.definition || ''} ${c.tip || ''} ${c.subject}과목`;
+      return matchesQuery(combined, query);
+    });
+  }, [quizzes, query, matchesQuery]);
+
+  // Search across Concept Book
+  const matchedConcepts = useMemo(() => {
+    if (!query || !query.trim()) return [];
+    return conceptTopics.filter(tp => {
+      const combined = `${tp.title || ''} ${tp.summary || ''} ${(tp.details || []).join(' ')} ${tp.examTrap || ''} ${tp.formula || ''}`;
+      return matchesQuery(combined, query);
+    });
+  }, [conceptTopics, query, matchesQuery]);
 
   // Search across questions
   const matchedQuestions = useMemo(() => {
     if (!query || !query.trim()) return [];
-    const qLower = query.toLowerCase().trim();
     const results = [];
     (exams || []).forEach(exam => {
       (exam.questions || []).forEach(q => {
-        const inQuestion = (q.question || '').toLowerCase().includes(qLower);
-        const inOptions = (q.options || []).some(opt => (opt || '').toLowerCase().includes(qLower));
-        const inExpl = (q.explanation || '').toLowerCase().includes(qLower);
-        const inTip = q.coreTip ? q.coreTip.toLowerCase().includes(qLower) : false;
-        if (inQuestion || inOptions || inExpl || inTip) {
-          results.push(q);
+        const combined = `${q.question || ''} ${(q.options || []).join(' ')} ${q.explanation || ''} ${q.coreTip || ''}`;
+        if (matchesQuery(combined, query)) {
+          results.push({ ...q, examTitle: exam.round || exam.title });
         }
       });
     });
     return results;
-  }, [exams, query]);
+  }, [exams, query, matchesQuery]);
 
-  // Search across flashcards & quizzes
-  const matchedTerms = useMemo(() => {
-    if (!query || !query.trim()) return [];
-    const qLower = query.toLowerCase().trim();
+  // Browseable glossary list when query is empty
+  const browseTerms = useMemo(() => {
     const cards = quizzes?.flashcards || [];
-    return cards.filter(c => 
-      (c.term || '').toLowerCase().includes(qLower) || 
-      (c.definition || '').toLowerCase().includes(qLower) ||
-      (c.tip && c.tip.toLowerCase().includes(qLower))
-    );
-  }, [quizzes, query]);
+    if (browseSubject === 0) return cards;
+    return cards.filter(c => c.subject === browseSubject);
+  }, [quizzes, browseSubject]);
+
+  // Reset pagination when query or subject filter changes
+  useEffect(() => {
+    setVisibleTermCount(40);
+  }, [query, browseSubject]);
 
   // Popular search keywords
   const popularKeywords = [
-    'CRISP-DM', '다중공선성', '이상치 IQR', '정상성 차분', 'ROC AUC', 
-    '의사결정나무', '로지스틱 회귀', 'K-means', '향상도 Lift', '암묵지 형식지'
+    'CRISP-DM', '다중공선성 VIF', '이상치 IQR', '정상성 차분', 'ROC AUC',
+    '의사결정나무', '로지스틱 오즈', 'K-means', '향상도 Lift', '암묵지 표출화',
+    '준비형 정착형', '제1종 오류', '더빈-왓슨', '주성분 PCA', '알고리즈미스트'
   ];
+
+  const totalMatches = matchedTerms.length + matchedConcepts.length + matchedQuestions.length;
 
   return (
     <div className="space-y-6 animate-fadeIn pb-16 max-w-4xl mx-auto">
@@ -3225,10 +3808,10 @@ function SearchView({ exams, quizzes, bookmarks, onToggleBookmark }) {
       <div className="text-center space-y-3 pb-4">
         <h1 className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-slate-100 flex items-center justify-center space-x-2">
           <span>🔍</span>
-          <span>ADsP 통합 검색 & 개념 사전</span>
+          <span>ADsP 통합 검색 & 전 범위 용어사전</span>
         </h1>
         <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400">
-          기출문제 800문항 (전 16개 회차), 상세 해설, 오답 분석, 핵심 용어 사전을 한 번에 검색하세요.
+          기출·모의고사 1,250문항 (전 25개 회차), 비전공자 개념 마스터북, 핵심 용어 백과사전 {(quizzes?.flashcards || []).length}개를 한 번에 검색하세요.
         </p>
 
         {/* Input */}
@@ -3237,28 +3820,32 @@ function SearchView({ exams, quizzes, bookmarks, onToggleBookmark }) {
             type="text"
             value={query}
             onChange={e => setQuery(e.target.value)}
-            placeholder="검색어를 입력하세요 (예: ROC, 정상성, VIF, 암묵지)"
+            placeholder="단어·약어·초성·R함수 등 대충 입력해도 모두 검색됩니다 (예: VIF, 이상치 IQR, 표출화, glm)"
             className="w-full px-5 py-3.5 pl-12 rounded-2xl border-2 border-indigo-200 dark:border-indigo-800 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 font-bold text-sm shadow-sm focus:outline-none focus:border-indigo-500 transition-all"
           />
           <span className="absolute left-4 top-5 text-lg text-slate-400">🔍</span>
           {query && (
             <button
               onClick={() => setQuery('')}
-              className="absolute right-4 top-4 text-xs font-bold bg-slate-100 dark:bg-slate-800 px-2 py-1 rounded-lg text-slate-500"
+              className="absolute right-4 top-4 text-xs font-bold bg-slate-100 dark:bg-slate-800 px-2.5 py-1 rounded-lg text-slate-500 hover:bg-rose-50 hover:text-rose-600 transition-colors"
             >
-              지우기
+              초기화 ✕
             </button>
           )}
         </div>
 
         {/* Popular Tags */}
         <div className="flex flex-wrap items-center justify-center gap-1.5 pt-2">
-          <span className="text-xs text-slate-400 font-semibold mr-1">추천 검색:</span>
+          <span className="text-xs text-slate-400 font-semibold mr-1">🔥 빈출 키워드:</span>
           {popularKeywords.map(kw => (
             <button
               key={kw}
               onClick={() => setQuery(kw)}
-              className="px-2.5 py-1 rounded-lg text-xs font-medium bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-indigo-50 hover:text-indigo-600 transition-colors"
+              className={`px-2.5 py-1 rounded-lg text-xs font-medium transition-colors ${
+                query === kw
+                  ? 'bg-indigo-600 text-white font-bold'
+                  : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-indigo-50 hover:text-indigo-600'
+              }`}
             >
               #{kw}
             </button>
@@ -3266,10 +3853,81 @@ function SearchView({ exams, quizzes, bookmarks, onToggleBookmark }) {
         </div>
       </div>
 
-      {/* Category selector if results exist */}
-      {query && (
-        <div className="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-3">
-          <div className="flex gap-2">
+      {/* DEFAULT BROWSE MODE: When query is empty, show full Glossary Encyclopedia */}
+      {!query.trim() && (
+        <div className="space-y-4">
+          <div className="bg-gradient-to-r from-indigo-600 to-purple-600 rounded-3xl p-5 text-white shadow-md flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+            <div>
+              <div className="text-xs font-bold text-indigo-100 uppercase tracking-wider">ADsP Complete Encyclopedia</div>
+              <h2 className="text-lg font-black mt-0.5">📚 ADsP 전 과목 핵심 용어·공식·R함수 백과사전 ({browseTerms.length}개)</h2>
+              <p className="text-xs text-indigo-100 mt-0.5">검색어를 입력하지 않아도 과목별 모든 필수 개념과 선지 빈출 용어를 한눈에 훑어볼 수 있습니다.</p>
+            </div>
+            <div className="flex flex-wrap gap-1.5 shrink-0">
+              {[
+                { id: 0, label: `전체 (${(quizzes?.flashcards || []).length})` },
+                { id: 1, label: '1과목 데이터 이해' },
+                { id: 2, label: '2과목 분석 기획' },
+                { id: 3, label: '3과목 데이터 분석' }
+              ].map(tab => (
+                <button
+                  key={tab.id}
+                  onClick={() => setBrowseSubject(tab.id)}
+                  className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all ${
+                    browseSubject === tab.id
+                      ? 'bg-white text-indigo-700 shadow-sm'
+                      : 'bg-white/15 text-white hover:bg-white/25'
+                  }`}
+                >
+                  {tab.label}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            {browseTerms.slice(0, visibleTermCount).map(term => (
+              <div
+                key={term.id}
+                className="bg-white dark:bg-slate-900 border border-indigo-100 dark:border-slate-800 rounded-2xl p-4 shadow-sm hover:border-indigo-300 dark:hover:border-indigo-700 transition-all space-y-2"
+              >
+                <div className="flex items-start justify-between gap-2">
+                  <span className="font-black text-sm text-indigo-600 dark:text-indigo-400 leading-snug">
+                    {term.term}
+                  </span>
+                  <span className="shrink-0 text-[10px] bg-indigo-50 dark:bg-indigo-950/70 text-indigo-600 dark:text-indigo-300 px-2 py-0.5 rounded-md font-bold">
+                    {term.subject}과목
+                  </span>
+                </div>
+                <div className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed whitespace-pre-line">
+                  <MarkdownText content={term.definition} />
+                </div>
+                {term.tip && (
+                  <div className="text-[11px] text-amber-700 dark:text-amber-400 pt-1.5 border-t border-slate-100 dark:border-slate-800 font-medium flex items-start space-x-1">
+                    <span>📌</span>
+                    <span className="flex-1"><MarkdownText content={term.tip} className="inline" /></span>
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+
+          {visibleTermCount < browseTerms.length && (
+            <div className="text-center pt-2">
+              <button
+                onClick={() => setVisibleTermCount(prev => prev + 60)}
+                className="px-6 py-3 rounded-2xl bg-indigo-50 dark:bg-indigo-950/60 hover:bg-indigo-100 text-indigo-600 dark:text-indigo-300 font-extrabold text-xs transition-all"
+              >
+                용어 더 보기 ({visibleTermCount} / {browseTerms.length}개 표시 중) ▼
+              </button>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Category selector if query exists */}
+      {query.trim() && (
+        <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-200 dark:border-slate-800 pb-3">
+          <div className="flex flex-wrap gap-2">
             <button
               onClick={() => setActiveCategory('all')}
               className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all ${
@@ -3278,7 +3936,7 @@ function SearchView({ exams, quizzes, bookmarks, onToggleBookmark }) {
                   : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300'
               }`}
             >
-              전체 ({matchedQuestions.length + matchedTerms.length})
+              전체 ({totalMatches})
             </button>
             <button
               onClick={() => setActiveCategory('terms')}
@@ -3288,7 +3946,17 @@ function SearchView({ exams, quizzes, bookmarks, onToggleBookmark }) {
                   : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300'
               }`}
             >
-              핵심 용어 ({matchedTerms.length})
+              핵심 용어사전 ({matchedTerms.length})
+            </button>
+            <button
+              onClick={() => setActiveCategory('concepts')}
+              className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all ${
+                activeCategory === 'concepts'
+                  ? 'bg-indigo-600 text-white'
+                  : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300'
+              }`}
+            >
+              개념 마스터북 ({matchedConcepts.length})
             </button>
             <button
               onClick={() => setActiveCategory('questions')}
@@ -3298,205 +3966,256 @@ function SearchView({ exams, quizzes, bookmarks, onToggleBookmark }) {
                   : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300'
               }`}
             >
-              기출문제 ({matchedQuestions.length})
+              기출·모의고사 ({matchedQuestions.length})
             </button>
           </div>
           <span className="text-xs text-slate-400">
-            총 {matchedQuestions.length + matchedTerms.length}건 검색됨
+            총 {totalMatches}건 검색됨
           </span>
         </div>
       )}
 
-      {/* Results List */}
-      <div className="space-y-6">
-        {/* 1. Matched Terms */}
-        {(activeCategory === 'all' || activeCategory === 'terms') && matchedTerms.length > 0 && (
-          <div className="space-y-3">
-            <h3 className="text-sm font-black text-slate-800 dark:text-slate-200 flex items-center space-x-1.5">
-              <span>📖</span>
-              <span>핵심 용어 사전 결과 ({matchedTerms.length})</span>
-            </h3>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              {matchedTerms.map(term => (
-                <div
-                  key={term.id}
-                  className="bg-white dark:bg-slate-900 border border-indigo-100 dark:border-slate-800 rounded-2xl p-4 shadow-sm space-y-2"
-                >
-                  <div className="flex items-center justify-between">
-                    <span className="font-black text-sm text-indigo-600 dark:text-indigo-400">
-                      {term.term}
-                    </span>
-                    <span className="text-[10px] bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded font-bold">
-                      {term.subject}과목
-                    </span>
-                  </div>
-                  <div className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">
-                    <MarkdownText content={term.definition} />
-                  </div>
-                  {term.tip && (
-                    <div className="text-[11px] text-amber-700 dark:text-amber-400 pt-1 border-t border-slate-100 dark:border-slate-800 font-medium flex items-start space-x-1">
-                      <span>📌</span>
-                      <span className="flex-1"><MarkdownText content={term.tip} className="inline" /></span>
-                    </div>
-                  )}
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {/* 2. Matched Questions */}
-        {(activeCategory === 'all' || activeCategory === 'questions') && matchedQuestions.length > 0 && (
-          <div className="space-y-3">
-            <h3 className="text-sm font-black text-slate-800 dark:text-slate-200 flex items-center space-x-1.5">
-              <span>📝</span>
-              <span>관련 기출문제 결과 ({matchedQuestions.length})</span>
-            </h3>
-            <div className="space-y-4">
-              {matchedQuestions.map(q => {
-                const isExpanded = expandedQId === q.id;
-                const isBookmarked = bookmarks.includes(q.id);
-
-                return (
+      {/* Search Results List */}
+      {query.trim() && (
+        <div className="space-y-6">
+          {/* 1. Matched Terms */}
+          {(activeCategory === 'all' || activeCategory === 'terms') && matchedTerms.length > 0 && (
+            <div className="space-y-3">
+              <h3 className="text-sm font-black text-slate-800 dark:text-slate-200 flex items-center space-x-1.5">
+                <span>📖</span>
+                <span>핵심 용어 사전 결과 ({matchedTerms.length}건)</span>
+              </h3>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                {matchedTerms.map(term => (
                   <div
-                    key={q.id}
-                    className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-5 shadow-sm space-y-3"
+                    key={term.id}
+                    className="bg-white dark:bg-slate-900 border border-indigo-100 dark:border-slate-800 rounded-2xl p-4 shadow-sm space-y-2"
                   >
-                    <div className="flex items-center justify-between">
-                      <span className="px-2 py-0.5 rounded text-[11px] font-bold bg-indigo-50 dark:bg-indigo-950 text-indigo-600 dark:text-indigo-400">
-                        {q.subjectName}
+                    <div className="flex items-start justify-between gap-2">
+                      <span className="font-black text-sm text-indigo-600 dark:text-indigo-400">
+                        {term.term}
                       </span>
-                      <button
-                        onClick={() => onToggleBookmark(q.id)}
-                        className="text-slate-400 hover:text-amber-500 text-sm"
-                      >
-                        {isBookmarked ? '⭐' : '☆'}
-                      </button>
-                    </div>
-
-                    <div className="text-sm font-bold text-slate-900 dark:text-slate-100 leading-relaxed">
-                      <MarkdownText content={q.question} />
-                    </div>
-
-                    <div className="flex items-center justify-between pt-1">
-                      <span className="text-xs font-semibold text-emerald-600 dark:text-emerald-400">
-                        정답: {q.answer + 1}번 ({q.options[q.answer]})
+                      <span className="shrink-0 text-[10px] bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded font-bold">
+                        {term.subject}과목
                       </span>
-                      <button
-                        onClick={() => setExpandedQId(isExpanded ? null : q.id)}
-                        className="text-xs font-bold text-indigo-600 dark:text-indigo-400 hover:underline"
-                      >
-                        {isExpanded ? '해설 닫기 ▲' : '상세 해설 보기 ▼'}
-                      </button>
                     </div>
-
-                    {isExpanded && (
-                      <div className="bg-gradient-to-br from-indigo-50/50 to-purple-50/30 dark:from-indigo-950/20 dark:to-purple-950/20 p-5 rounded-3xl border border-indigo-200/80 dark:border-indigo-800/80 space-y-4 animate-fadeIn">
-                        {/* 1. Core Explanation */}
-                        <div className="bg-white/80 dark:bg-slate-900/80 p-4 rounded-2xl border border-indigo-100 dark:border-indigo-900/50 space-y-1.5 shadow-sm">
-                          <span className="text-xs font-black text-indigo-700 dark:text-indigo-400 flex items-center space-x-1.5">
-                            <span className="w-4 h-4 rounded-md bg-indigo-100 dark:bg-indigo-900/60 text-indigo-600 dark:text-indigo-300 flex items-center justify-center text-[10px]">💡</span>
-                            <span>[1단계] 정답 핵심 원리 해설</span>
-                          </span>
-                          <div className="text-xs text-slate-700 dark:text-slate-200 leading-relaxed font-medium pl-0.5">
-                            <MarkdownText content={q.explanation} />
-                          </div>
-                        </div>
-
-                        {/* 2. 1:1 Per-Option Flaw Analysis */}
-                        {q.wrongOptionsAnalysis && Object.keys(q.wrongOptionsAnalysis).length > 0 && (
-                          <div className="space-y-2">
-                            <span className="text-xs font-black text-rose-600 dark:text-rose-400 flex items-center space-x-1.5">
-                              <span className="w-4 h-4 rounded-md bg-rose-100 dark:bg-rose-950/60 text-rose-600 dark:text-rose-400 flex items-center justify-center text-[10px]">❌</span>
-                              <span>[2단계] 1~4번 선지 1:1 오답 격파 (틀린 이유 & 올바른 내용)</span>
-                            </span>
-                            <div className="grid grid-cols-1 gap-1.5">
-                              {Object.entries(q.wrongOptionsAnalysis).map(([k, text]) => {
-                                const optNum = Number(k);
-                                const isCorrectOpt = optNum === q.answer;
-                                const optText = q.options && q.options[optNum] ? q.options[optNum] : '';
-                                return (
-                                  <div 
-                                    key={k} 
-                                    className={`p-3 rounded-2xl border text-xs leading-relaxed ${
-                                      isCorrectOpt
-                                        ? 'bg-emerald-50/70 dark:bg-emerald-950/30 border-emerald-200 dark:border-emerald-800/60 text-emerald-900 dark:text-emerald-200'
-                                        : 'bg-white/80 dark:bg-slate-900/80 border-slate-200/80 dark:border-slate-800 text-slate-700 dark:text-slate-300'
-                                    }`}
-                                  >
-                                    <div className="flex items-center space-x-2 mb-1 flex-wrap">
-                                      <span className={`px-1.5 py-0.5 rounded font-black text-[10px] ${
-                                        isCorrectOpt ? 'bg-emerald-600 text-white' : 'bg-rose-500 text-white'
-                                      }`}>
-                                        {isCorrectOpt ? `✓ 정답 (${optNum + 1}번)` : `✗ 오답 (${optNum + 1}번)`}
-                                      </span>
-                                      {optText && (
-                                        <span className="font-semibold text-slate-500 dark:text-slate-400 text-[11px] truncate max-w-xs">
-                                          "{optText}"
-                                        </span>
-                                      )}
-                                    </div>
-                                    <div className="text-xs leading-relaxed pl-0.5">
-                                      <MarkdownText content={text} />
-                                    </div>
-                                  </div>
-                                );
-                              })}
-                            </div>
-                          </div>
-                        )}
-
-                        {/* 3. Easy Metaphor for Non-Majors */}
-                        {q.conceptMetaphor && (
-                          <div className="bg-teal-50/80 dark:bg-teal-950/40 border border-teal-200/80 dark:border-teal-800/70 rounded-2xl p-3.5 flex items-start space-x-2.5">
-                            <span className="text-lg shrink-0 mt-0.5">🌱</span>
-                            <div className="space-y-0.5">
-                              <span className="text-xs font-black text-teal-800 dark:text-teal-300 block">
-                                [3단계] 비전공자 눈높이 개념 비유
-                              </span>
-                              <div className="text-xs text-teal-950 dark:text-teal-100 leading-relaxed font-medium">
-                                <MarkdownText content={q.conceptMetaphor} />
-                              </div>
-                            </div>
-                          </div>
-                        )}
-
-                        {/* 4. Core Tip */}
-                        {q.coreTip && (
-                          <div className="bg-amber-50/80 dark:bg-amber-950/40 border border-amber-200/80 dark:border-amber-800/70 rounded-2xl p-3.5 flex items-start space-x-2.5">
-                            <span className="text-lg shrink-0 mt-0.5">📌</span>
-                            <div className="space-y-0.5">
-                              <span className="text-xs font-black text-amber-800 dark:text-amber-300 block">
-                                [4단계] 시험 직전 1초 암기 공식 & 함정 탈출 팁
-                              </span>
-                              <div className="text-xs text-amber-950 dark:text-amber-100 font-semibold leading-relaxed">
-                                <MarkdownText content={q.coreTip} />
-                              </div>
-                            </div>
-                          </div>
-                        )}
+                    <div className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed whitespace-pre-line">
+                      <MarkdownText content={term.definition} />
+                    </div>
+                    {term.tip && (
+                      <div className="text-[11px] text-amber-700 dark:text-amber-400 pt-1 border-t border-slate-100 dark:border-slate-800 font-medium flex items-start space-x-1">
+                        <span>📌</span>
+                        <span className="flex-1"><MarkdownText content={term.tip} className="inline" /></span>
                       </div>
                     )}
                   </div>
-                );
-              })}
+                ))}
+              </div>
             </div>
-          </div>
-        )}
+          )}
 
-        {/* Empty when searched but nothing found */}
-        {query && matchedQuestions.length === 0 && matchedTerms.length === 0 && (
-          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-12 text-center space-y-2">
-            <div className="text-3xl">🔎</div>
-            <p className="text-sm font-bold text-slate-700 dark:text-slate-300">
-              "{query}"에 대한 검색 결과가 없습니다.
-            </p>
-            <p className="text-xs text-slate-400">
-              다른 키워드(예: 회귀, 상관, 군집, 의사결정나무, 4V)로 검색해 보세요.
-            </p>
-          </div>
-        )}
-      </div>
+          {/* 2. Matched Concept Book Topics */}
+          {(activeCategory === 'all' || activeCategory === 'concepts') && matchedConcepts.length > 0 && (
+            <div className="space-y-3">
+              <h3 className="text-sm font-black text-slate-800 dark:text-slate-200 flex items-center space-x-1.5">
+                <span>📘</span>
+                <span>개념 마스터북 결과 ({matchedConcepts.length}건)</span>
+              </h3>
+              <div className="space-y-3">
+                {matchedConcepts.map((tp, idx) => (
+                  <div
+                    key={tp.id || idx}
+                    className="bg-white dark:bg-slate-900 border border-purple-200 dark:border-purple-900/60 rounded-2xl p-5 shadow-sm space-y-2.5"
+                  >
+                    <div className="flex items-center justify-between flex-wrap gap-2">
+                      <span className="font-black text-sm sm:text-base text-purple-700 dark:text-purple-300">
+                        📚 {tp.title}
+                      </span>
+                      <span className="text-[11px] font-bold bg-purple-50 dark:bg-purple-950/60 text-purple-600 dark:text-purple-300 px-2.5 py-0.5 rounded-lg">
+                        {tp.subjectTitle} · {tp.chapterTitle}
+                      </span>
+                    </div>
+                    {tp.summary && (
+                      <div className="text-xs font-bold text-indigo-700 dark:text-indigo-300 bg-indigo-50/70 dark:bg-indigo-950/40 px-3 py-2 rounded-xl">
+                        💡 핵심 요약: {tp.summary}
+                      </div>
+                    )}
+                    {tp.details && tp.details.length > 0 && (
+                      <ul className="text-xs text-slate-700 dark:text-slate-300 space-y-1 pl-4 list-disc leading-relaxed">
+                        {tp.details.map((d, i) => (
+                          <li key={i}><MarkdownText content={d} className="inline" /></li>
+                        ))}
+                      </ul>
+                    )}
+                    {tp.examTrap && (
+                      <div className="text-xs text-rose-700 dark:text-rose-300 bg-rose-50/70 dark:bg-rose-950/30 px-3 py-2 rounded-xl font-semibold">
+                        🚨 시험 단골 함정: {tp.examTrap}
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* 3. Matched Questions */}
+          {(activeCategory === 'all' || activeCategory === 'questions') && matchedQuestions.length > 0 && (
+            <div className="space-y-3">
+              <h3 className="text-sm font-black text-slate-800 dark:text-slate-200 flex items-center space-x-1.5">
+                <span>📝</span>
+                <span>관련 기출·모의고사 문제 결과 ({matchedQuestions.length}건)</span>
+              </h3>
+              <div className="space-y-4">
+                {matchedQuestions.map(q => {
+                  const isExpanded = expandedQId === q.id;
+                  const isBookmarked = bookmarks.includes(q.id);
+
+                  return (
+                    <div
+                      key={q.id}
+                      className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-5 shadow-sm space-y-3"
+                    >
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-1.5">
+                          <span className="px-2 py-0.5 rounded text-[11px] font-bold bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300">
+                            {q.examTitle} #{q.number}
+                          </span>
+                          <span className="px-2 py-0.5 rounded text-[11px] font-bold bg-indigo-50 dark:bg-indigo-950 text-indigo-600 dark:text-indigo-400">
+                            {q.subjectName}
+                          </span>
+                        </div>
+                        <button
+                          onClick={() => onToggleBookmark(q.id)}
+                          className="text-slate-400 hover:text-amber-500 text-sm"
+                        >
+                          {isBookmarked ? '⭐' : '☆'}
+                        </button>
+                      </div>
+
+                      <div className="text-sm font-bold text-slate-900 dark:text-slate-100 leading-relaxed">
+                        <MarkdownText content={q.question} />
+                      </div>
+
+                      <div className="flex items-center justify-between pt-1">
+                        <span className="text-xs font-semibold text-emerald-600 dark:text-emerald-400">
+                          정답: {q.answer + 1}번 ({q.options[q.answer]})
+                        </span>
+                        <button
+                          onClick={() => setExpandedQId(isExpanded ? null : q.id)}
+                          className="text-xs font-bold text-indigo-600 dark:text-indigo-400 hover:underline"
+                        >
+                          {isExpanded ? '해설 닫기 ▲' : '상세 해설 보기 ▼'}
+                        </button>
+                      </div>
+
+                      {isExpanded && (
+                        <div className="bg-gradient-to-br from-indigo-50/50 to-purple-50/30 dark:from-indigo-950/20 dark:to-purple-950/20 p-5 rounded-3xl border border-indigo-200/80 dark:border-indigo-800/80 space-y-4 animate-fadeIn">
+                          {/* 1. Core Explanation */}
+                          <div className="bg-white/80 dark:bg-slate-900/80 p-4 rounded-2xl border border-indigo-100 dark:border-indigo-900/50 space-y-1.5 shadow-sm">
+                            <span className="text-xs font-black text-indigo-700 dark:text-indigo-400 flex items-center space-x-1.5">
+                              <span className="w-4 h-4 rounded-md bg-indigo-100 dark:bg-indigo-900/60 text-indigo-600 dark:text-indigo-300 flex items-center justify-center text-[10px]">💡</span>
+                              <span>[1단계] 정답 핵심 원리 해설</span>
+                            </span>
+                            <div className="text-xs text-slate-700 dark:text-slate-200 leading-relaxed font-medium pl-0.5">
+                              <MarkdownText content={q.explanation} />
+                            </div>
+                          </div>
+
+                          {/* 2. 1:1 Per-Option Flaw Analysis */}
+                          {q.wrongOptionsAnalysis && Object.keys(q.wrongOptionsAnalysis).length > 0 && (
+                            <div className="space-y-2">
+                              <span className="text-xs font-black text-rose-600 dark:text-rose-400 flex items-center space-x-1.5">
+                                <span className="w-4 h-4 rounded-md bg-rose-100 dark:bg-rose-950/60 text-rose-600 dark:text-rose-400 flex items-center justify-center text-[10px]">❌</span>
+                                <span>[2단계] 1~4번 선지 1:1 오답 격파 (틀린 이유 & 올바른 내용)</span>
+                              </span>
+                              <div className="grid grid-cols-1 gap-1.5">
+                                {Object.entries(q.wrongOptionsAnalysis).map(([k, text]) => {
+                                  const optNum = Number(k);
+                                  const isCorrectOpt = optNum === q.answer;
+                                  const optText = q.options && q.options[optNum] ? q.options[optNum] : '';
+                                  return (
+                                    <div
+                                      key={k}
+                                      className={`p-3 rounded-2xl border text-xs leading-relaxed ${
+                                        isCorrectOpt
+                                          ? 'bg-emerald-50/70 dark:bg-emerald-950/30 border-emerald-200 dark:border-emerald-800/60 text-emerald-900 dark:text-emerald-200'
+                                          : 'bg-white/80 dark:bg-slate-900/80 border-slate-200/80 dark:border-slate-800 text-slate-700 dark:text-slate-300'
+                                      }`}
+                                    >
+                                      <div className="flex items-center space-x-2 mb-1 flex-wrap">
+                                        <span className={`px-1.5 py-0.5 rounded font-black text-[10px] ${
+                                          isCorrectOpt ? 'bg-emerald-600 text-white' : 'bg-rose-500 text-white'
+                                        }`}>
+                                          {isCorrectOpt ? `✓ 정답 (${optNum + 1}번)` : `✗ 오답 (${optNum + 1}번)`}
+                                        </span>
+                                        {optText && (
+                                          <span className="font-semibold text-slate-500 dark:text-slate-400 text-[11px] truncate max-w-xs">
+                                            "{optText}"
+                                          </span>
+                                        )}
+                                      </div>
+                                      <div className="text-xs leading-relaxed pl-0.5">
+                                        <MarkdownText content={text} />
+                                      </div>
+                                    </div>
+                                  );
+                                })}
+                              </div>
+                            </div>
+                          )}
+
+                          {/* 3. Easy Metaphor for Non-Majors */}
+                          {q.conceptMetaphor && (
+                            <div className="bg-teal-50/80 dark:bg-teal-950/40 border border-teal-200/80 dark:border-teal-800/70 rounded-2xl p-3.5 flex items-start space-x-2.5">
+                              <span className="text-lg shrink-0 mt-0.5">🌱</span>
+                              <div className="space-y-0.5">
+                                <span className="text-xs font-black text-teal-800 dark:text-teal-300 block">
+                                  [3단계] 비전공자 눈높이 개념 비유
+                                </span>
+                                <div className="text-xs text-teal-950 dark:text-teal-100 leading-relaxed font-medium">
+                                  <MarkdownText content={q.conceptMetaphor} />
+                                </div>
+                              </div>
+                            </div>
+                          )}
+
+                          {/* 4. Core Tip */}
+                          {q.coreTip && (
+                            <div className="bg-amber-50/80 dark:bg-amber-950/40 border border-amber-200/80 dark:border-amber-800/70 rounded-2xl p-3.5 flex items-start space-x-2.5">
+                              <span className="text-lg shrink-0 mt-0.5">📌</span>
+                              <div className="space-y-0.5">
+                                <span className="text-xs font-black text-amber-800 dark:text-amber-300 block">
+                                  [4단계] 시험 직전 1초 암기 공식 & 함정 탈출 팁
+                                </span>
+                                <div className="text-xs text-amber-950 dark:text-amber-100 font-semibold leading-relaxed">
+                                  <MarkdownText content={q.coreTip} />
+                                </div>
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+
+          {/* Empty when searched but nothing found */}
+          {totalMatches === 0 && (
+            <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-12 text-center space-y-2">
+              <div className="text-3xl">🔎</div>
+              <p className="text-sm font-bold text-slate-700 dark:text-slate-300">
+                "{query}"에 대한 검색 결과가 없습니다.
+              </p>
+              <p className="text-xs text-slate-400">
+                다른 키워드(예: 회귀, 상관, 군집, 의사결정나무, 3V, 표출화, VIF)로 검색해 보세요.
+              </p>
+            </div>
+          )}
+        </div>
+      )}
     </div>
   );
 }
@@ -3660,19 +4379,20 @@ function App() {
           </div>
 
           {/* Desktop Nav Items */}
-          <div className="hidden md:flex items-center space-x-1 lg:space-x-2">
+          <div className="hidden md:flex items-center space-x-1 lg:space-x-1.5">
             {[
               { id: 'dashboard', label: '대시보드', icon: '📊' },
+              { id: 'exam-info', label: '시험 기본정보', icon: 'ℹ️' },
               { id: 'concept-book', label: '개념 마스터북', icon: '📖' },
               { id: 'exam-select', label: '기출문제 풀이', icon: '📝' },
               { id: 'quiz-corner', label: '단어/문장 퀴즈', icon: '⚡' },
-              { id: 'wrong-notes', label: '오답노트 & 북마크', icon: '📑', badge: wrongQuestions.length + bookmarks.length },
+              { id: 'wrong-notes', label: '오답노트', icon: '📑', badge: wrongQuestions.length + bookmarks.length },
               { id: 'search', label: '검색 & 용어사전', icon: '🔍' },
             ].map(nav => (
               <button
                 key={nav.id}
                 onClick={() => setCurrentTab(nav.id)}
-                className={`relative px-3 py-2 rounded-xl text-sm font-semibold transition-all flex items-center space-x-1.5 ${
+                className={`relative px-2.5 py-2 rounded-xl text-xs lg:text-sm font-semibold transition-all flex items-center space-x-1 ${
                   currentTab === nav.id
                     ? 'bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 border border-indigo-200 dark:border-indigo-800/80 shadow-sm'
                     : 'text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800'
@@ -3705,11 +4425,12 @@ function App() {
         <div className="flex md:hidden overflow-x-auto space-x-1 pb-2 pt-1 border-t border-slate-100 dark:border-slate-800">
           {[
             { id: 'dashboard', label: '홈' },
+            { id: 'exam-info', label: '시험기본정보' },
             { id: 'concept-book', label: '개념서' },
             { id: 'exam-select', label: '기출문제' },
             { id: 'quiz-corner', label: '퀴즈코너' },
             { id: 'wrong-notes', label: `오답(${wrongQuestions.length})` },
-            { id: 'search', label: '검색사전' },
+            { id: 'search', label: '검색·용어사전' },
           ].map(nav => (
             <button
               key={nav.id}
@@ -3749,6 +4470,10 @@ function App() {
             }}
             onNavigate={(tab) => setCurrentTab(tab)}
           />
+        )}
+
+        {currentTab === 'exam-info' && (
+          <ExamInfoView />
         )}
 
         {currentTab === 'concept-book' && (
