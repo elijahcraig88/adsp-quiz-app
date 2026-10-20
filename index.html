@@ -105,9 +105,9 @@
   </div>
 
   <!-- Data Sets -->
-  <script src="data/examSets.js?v=63"></script>
-  <script src="data/quizSets.js?v=63"></script>
-  <script src="data/conceptBookData.js?v=63"></script>
+  <script src="data/examSets.js?v=64"></script>
+  <script src="data/quizSets.js?v=64"></script>
+  <script src="data/conceptBookData.js?v=64"></script>
 
   <!-- Unified Inlined Bundle for 100% Reliable Execution (Both file:/// and http://) -->
   <script type="text/babel">
@@ -123,15 +123,27 @@ function MarkdownText({ content, className = '' }) {
   if (!content) return null;
   if (typeof content !== 'string') return React.createElement('span', { className }, String(content));
 
-  // Parse inline elements (bold, code, math)
+  // Parse inline elements (bold, code, math, blanks)
   const parseInline = (text, keyPrefix = 'inline') => {
     if (!text) return null;
-    const regex = /(\*\*[^\n]+?\*\*|`[^`\n]+?`|\$[^\$\n]+?\$)/g;
+    const regex = /(\*\*[^\n]+?\*\*|`[^`\n]+?`|\$[^\$\n]+?\$|\(\s*[㉠㉡㉢㉣ABCD가나다]\s*\)|\[\s*[㉠㉡㉢㉣ABCD가나다]\s*\])/g;
     const parts = text.split(regex);
 
     return parts.map((part, idx) => {
       if (!part) return null;
       const key = `${keyPrefix}-${idx}`;
+
+      // Blank highlighting: ( ㉠ ), ( ㉡ ), [ ㉠ ], ( A )
+      if (/^(\(\s*[㉠㉡㉢㉣ABCD가나다]\s*\)|\[\s*[㉠㉡㉢㉣ABCD가나다]\s*\])$/.test(part)) {
+        return React.createElement(
+          'span',
+          {
+            key,
+            className: 'inline-flex items-center justify-center px-2 py-0.5 mx-1 rounded-md bg-amber-400/25 text-amber-900 dark:text-amber-200 border border-amber-400/50 font-black font-mono text-xs shadow-xs'
+          },
+          part
+        );
+      }
 
       // Bold: **text**
       if (part.startsWith('**') && part.endsWith('**') && part.length >= 4) {
@@ -189,6 +201,383 @@ function MarkdownText({ content, className = '' }) {
     // Empty line -> spacing
     if (!trimmed) {
       elements.push(React.createElement('div', { key: `empty-${i}`, className: 'h-1.5' }));
+      continue;
+    }
+
+    // R Console Terminal / Fenced Code Block: ```r or ``` or 💻 [R Console: ...]
+    if (trimmed.startsWith('```') || trimmed.startsWith('💻 [') || trimmed.startsWith('💻 **[')) {
+      let codeTitle = 'R Console - RStudio';
+      let codeLines = [];
+      
+      if (trimmed.startsWith('💻')) {
+        const tMatch = trimmed.match(/💻\s*\*?\[([^\]]+)\]/);
+        if (tMatch) codeTitle = tMatch[1];
+        let j = i + 1;
+        if (j < lines.length && lines[j].trim().startsWith('```')) j++;
+        while (j < lines.length) {
+          const cTrim = lines[j].trim();
+          if (cTrim.startsWith('```')) {
+            j++;
+            break;
+          }
+          if (cTrim.startsWith('[') || cTrim.startsWith('📚') || cTrim.startsWith('📖') || cTrim.startsWith('🎯') || cTrim.startsWith('💡 [') || cTrim.startsWith('📊 [') || cTrim.startsWith('📦 [') || cTrim.startsWith('📈 [')) {
+            break;
+          }
+          codeLines.push(lines[j]);
+          j++;
+        }
+        i = j - 1;
+      } else {
+        const lang = trimmed.slice(3).trim();
+        if (lang) codeTitle = (lang.toUpperCase() === 'R' || lang.toLowerCase() === 'r') ? 'R Console - RStudio' : `${lang.toUpperCase()} Code`;
+        let j = i + 1;
+        while (j < lines.length) {
+          if (lines[j].trim().startsWith('```')) {
+            j++;
+            break;
+          }
+          codeLines.push(lines[j]);
+          j++;
+        }
+        i = j - 1;
+      }
+
+      const renderedCodeLines = codeLines.map((cLine, cIdx) => {
+        const cTrim = cLine.trim();
+        if (cTrim.startsWith('>') || cTrim.startsWith('+')) {
+          return React.createElement('div', { key: `c-${cIdx}`, className: 'text-sky-300 font-bold' }, cLine);
+        }
+        if (cTrim.startsWith('#')) {
+          return React.createElement('div', { key: `c-${cIdx}`, className: 'text-slate-400 italic' }, cLine);
+        }
+        if (cTrim.startsWith('Call:') || cTrim.startsWith('Coefficients:') || cTrim.startsWith('Residuals:') || cTrim.startsWith('Analysis of Variance')) {
+          return React.createElement('div', { key: `c-${cIdx}`, className: 'text-amber-300 font-bold' }, cLine);
+        }
+        if (cTrim.includes('Multiple R-squared:') || cTrim.includes('Adjusted R-squared:') || cTrim.includes('F-statistic:') || cTrim.includes('p-value:')) {
+          return React.createElement('div', { key: `c-${cIdx}`, className: 'text-teal-300 font-bold' }, cLine);
+        }
+        if (cTrim.includes('***') || cTrim.includes('**') || cTrim.includes('*')) {
+          return React.createElement('div', { key: `c-${cIdx}`, className: 'text-emerald-300 font-semibold' }, cLine);
+        }
+        return React.createElement('div', { key: `c-${cIdx}`, className: 'text-slate-200' }, cLine || ' ');
+      });
+
+      elements.push(
+        React.createElement(
+          'div',
+          {
+            key: `r-console-${i}`,
+            className: 'my-3 rounded-2xl overflow-hidden bg-slate-950 border border-slate-700/80 shadow-lg font-mono text-[11px] sm:text-xs select-text'
+          },
+          [
+            React.createElement(
+              'div',
+              {
+                key: 'term-bar',
+                className: 'flex items-center justify-between px-3.5 py-2 bg-slate-900 border-b border-slate-800 select-none'
+              },
+              [
+                React.createElement('div', { key: 'dots', className: 'flex items-center space-x-1.5' }, [
+                  React.createElement('span', { key: 'd1', className: 'w-2.5 h-2.5 rounded-full bg-rose-500 shadow-xs' }),
+                  React.createElement('span', { key: 'd2', className: 'w-2.5 h-2.5 rounded-full bg-amber-500 shadow-xs' }),
+                  React.createElement('span', { key: 'd3', className: 'w-2.5 h-2.5 rounded-full bg-emerald-500 shadow-xs' })
+                ]),
+                React.createElement('span', { key: 'term-title', className: 'text-[11px] font-bold text-slate-300 tracking-wide' }, codeTitle),
+                React.createElement('span', { key: 'badge', className: 'px-1.5 py-0.5 rounded text-[9px] font-black bg-indigo-500/20 text-indigo-300 border border-indigo-500/30' }, 'R Output')
+              ]
+            ),
+            React.createElement(
+              'div',
+              {
+                key: 'term-body',
+                className: 'p-3.5 sm:p-4 overflow-x-auto leading-relaxed text-slate-200 selection:bg-indigo-600 selection:text-white space-y-0.5'
+              },
+              renderedCodeLines
+            )
+          ]
+        )
+      );
+      continue;
+    }
+
+    // Boxplot SVG: 📦 [상자그림 (Boxplot): 변수명 | min=X, q1=X, med=X, q3=X, max=X, outliers=X Y]
+    if (trimmed.startsWith('📦 [') || trimmed.startsWith('📦 **[')) {
+      const match = trimmed.match(/📦\s*\*?\[([^\]]+)\]/);
+      const spec = match ? match[1] : '';
+      const parts = spec.split('|');
+      const boxTitle = parts[0].trim();
+      const params = {};
+      if (parts[1]) {
+        parts[1].split(',').forEach(kv => {
+          const [k, v] = kv.split('=').map(s => (s || '').trim().toLowerCase());
+          if (k && v !== undefined) params[k] = v;
+        });
+      }
+
+      const minVal = parseFloat(params['min'] || 10);
+      const q1 = parseFloat(params['q1'] || 25);
+      const med = parseFloat(params['med'] || params['median'] || 40);
+      const q3 = parseFloat(params['q3'] || 60);
+      const maxVal = parseFloat(params['max'] || 85);
+      const rawOutliers = params['outliers'] ? params['outliers'].split(/[\s,]+/).map(Number).filter(n => !isNaN(n)) : [];
+
+      const allVals = [minVal, q1, med, q3, maxVal, ...rawOutliers];
+      const globalMin = Math.min(...allVals);
+      const globalMax = Math.max(...allVals);
+      const span = (globalMax - globalMin) || 1;
+
+      const svgWidth = 480;
+      const svgHeight = 155;
+      const padL = 45;
+      const padR = 45;
+      const usableW = svgWidth - padL - padR;
+
+      const toX = (val) => padL + ((val - globalMin) / span) * usableW;
+
+      const xMin = toX(minVal);
+      const xQ1 = toX(q1);
+      const xMed = toX(med);
+      const xQ3 = toX(q3);
+      const xMax = toX(maxVal);
+
+      const boxY = 48;
+      const boxH = 42;
+      const midY = boxY + boxH / 2;
+
+      const svgChildren = [
+        React.createElement('line', { key: 'iqr-line', x1: xQ1, y1: 30, x2: xQ3, y2: 30, stroke: '#6366f1', strokeWidth: 1.5 }),
+        React.createElement('line', { key: 'iqr-lcap', x1: xQ1, y1: 26, x2: xQ1, y2: 34, stroke: '#6366f1', strokeWidth: 1.5 }),
+        React.createElement('line', { key: 'iqr-rcap', x1: xQ3, y1: 26, x2: xQ3, y2: 34, stroke: '#6366f1', strokeWidth: 1.5 }),
+        React.createElement('text', {
+          key: 'iqr-txt',
+          x: (xQ1 + xQ3) / 2,
+          y: 24,
+          textAnchor: 'middle',
+          fontSize: 10,
+          fontWeight: 'bold',
+          fill: '#4f46e5'
+        }, `사분위수범위 (IQR = ${Math.round((q3 - q1) * 100) / 100})`),
+
+        React.createElement('line', { key: 'w-low', x1: xMin, y1: midY, x2: xQ1, y2: midY, stroke: '#64748b', strokeWidth: 2, strokeDasharray: '4 3' }),
+        React.createElement('line', { key: 'w-low-cap', x1: xMin, y1: midY - 14, x2: xMin, y2: midY + 14, stroke: '#64748b', strokeWidth: 2.5 }),
+
+        React.createElement('line', { key: 'w-high', x1: xQ3, y1: midY, x2: xMax, y2: midY, stroke: '#64748b', strokeWidth: 2, strokeDasharray: '4 3' }),
+        React.createElement('line', { key: 'w-high-cap', x1: xMax, y1: midY - 14, x2: xMax, y2: midY + 14, stroke: '#64748b', strokeWidth: 2.5 }),
+
+        React.createElement('rect', {
+          key: 'iqr-box',
+          x: xQ1,
+          y: boxY,
+          width: Math.max(xQ3 - xQ1, 2),
+          height: boxH,
+          rx: 4,
+          fill: 'rgba(99, 102, 241, 0.22)',
+          stroke: '#4f46e5',
+          strokeWidth: 2.5
+        }),
+
+        React.createElement('line', { key: 'med-line', x1: xMed, y1: boxY, x2: xMed, y2: boxY + boxH, stroke: '#e11d48', strokeWidth: 3 }),
+
+        ...rawOutliers.map((oVal, oIdx) => {
+          const ox = toX(oVal);
+          return React.createElement(
+            React.Fragment,
+            { key: `outlier-${oIdx}` },
+            [
+              React.createElement('circle', {
+                cx: ox,
+                cy: midY,
+                r: 5.5,
+                fill: '#f43f5e',
+                stroke: '#ffffff',
+                strokeWidth: 2
+              }),
+              React.createElement('text', {
+                x: ox,
+                y: midY - 10,
+                textAnchor: 'middle',
+                fontSize: 9.5,
+                fontWeight: 'bold',
+                fill: '#e11d48'
+              }, `${oVal} (이상치)`)
+            ]
+          );
+        }),
+
+        React.createElement('line', { key: 'axis', x1: padL - 10, y1: 110, x2: svgWidth - padR + 10, y2: 110, stroke: '#94a3b8', strokeWidth: 1.5 }),
+
+        React.createElement('text', { key: 'lbl-min', x: xMin, y: 126, textAnchor: 'middle', fontSize: 10, fontWeight: 'bold', fill: '#475569' }, `최솟값 ${minVal}`),
+        React.createElement('text', { key: 'lbl-q1', x: xQ1, y: 140, textAnchor: 'middle', fontSize: 10, fontWeight: 'bold', fill: '#4338ca' }, `Q1 ${q1}`),
+        React.createElement('text', { key: 'lbl-med', x: xMed, y: 126, textAnchor: 'middle', fontSize: 10.5, fontWeight: 'black', fill: '#be123c' }, `중앙값 ${med}`),
+        React.createElement('text', { key: 'lbl-q3', x: xQ3, y: 140, textAnchor: 'middle', fontSize: 10, fontWeight: 'bold', fill: '#4338ca' }, `Q3 ${q3}`),
+        React.createElement('text', { key: 'lbl-max', x: xMax, y: 126, textAnchor: 'middle', fontSize: 10, fontWeight: 'bold', fill: '#475569' }, `최댓값 ${maxVal}`)
+      ];
+
+      elements.push(
+        React.createElement(
+          'div',
+          {
+            key: `boxplot-${i}`,
+            className: 'my-3 p-3 sm:p-4 rounded-2xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm'
+          },
+          [
+            React.createElement(
+              'div',
+              { key: 'head', className: 'flex items-center justify-between pb-2 mb-2 border-b border-slate-200 dark:border-slate-800' },
+              [
+                React.createElement('div', { key: 'title', className: 'text-xs sm:text-sm font-black text-slate-800 dark:text-slate-100 flex items-center space-x-1.5' }, [
+                  React.createElement('span', { key: 'icon' }, '📦'),
+                  React.createElement('span', { key: 't' }, boxTitle)
+                ]),
+                React.createElement('span', { key: 'badge', className: 'text-[10px] font-bold px-2 py-0.5 rounded bg-indigo-100 dark:bg-indigo-950 text-indigo-700 dark:text-indigo-300 font-mono' }, 'Boxplot Diagram')
+              ]
+            ),
+            React.createElement(
+              'div',
+              { key: 'svg-wrap', className: 'w-full overflow-x-auto flex justify-center py-1' },
+              React.createElement('svg', {
+                viewBox: `0 0 ${svgWidth} ${svgHeight}`,
+                className: 'w-full max-w-[500px] h-auto select-none'
+              }, svgChildren)
+            )
+          ]
+        )
+      );
+      continue;
+    }
+
+    // Scree Plot SVG: 📈 [Scree Plot (주성분 분석 감쇄도) | comp=3.4 1.9 0.7 0.3 0.1]
+    if (trimmed.startsWith('📈 [') || trimmed.startsWith('📈 **[')) {
+      const match = trimmed.match(/📈\s*\*?\[([^\]]+)\]/);
+      const spec = match ? match[1] : '';
+      const parts = spec.split('|');
+      const screeTitle = parts[0].trim();
+      const params = {};
+      if (parts[1]) {
+        parts[1].split(',').forEach(kv => {
+          const [k, v] = kv.split('=').map(s => (s || '').trim().toLowerCase());
+          if (k && v !== undefined) params[k] = v;
+        });
+      }
+
+      const rawVals = (params['values'] || params['eigenvalues'] || params['comp'] || '3.2 1.8 0.7 0.2 0.1')
+        .split(/[\s,]+/).map(Number).filter(n => !isNaN(n));
+
+      const svgWidth = 460;
+      const svgHeight = 170;
+      const padL = 40;
+      const padR = 25;
+      const padT = 25;
+      const padB = 40;
+      const usableW = svgWidth - padL - padR;
+      const usableH = svgHeight - padT - padB;
+
+      const maxVal = Math.max(...rawVals, 3.5);
+      const toY = (val) => padT + usableH - (val / maxVal) * usableH;
+      const barW = Math.min(usableW / (rawVals.length * 2), 36);
+      const stepX = usableW / rawVals.length;
+
+      const kaiserY = toY(1.0);
+
+      const points = rawVals.map((v, idx) => {
+        const x = padL + idx * stepX + stepX / 2;
+        const y = toY(v);
+        return { x, y, v, idx };
+      });
+
+      const polylinePoints = points.map(p => `${p.x},${p.y}`).join(' ');
+
+      const svgChildren = [
+        React.createElement('line', { key: 'y-axis', x1: padL, y1: padT, x2: padL, y2: padT + usableH, stroke: '#94a3b8', strokeWidth: 1.5 }),
+        React.createElement('line', { key: 'x-axis', x1: padL, y1: padT + usableH, x2: svgWidth - padR, y2: padT + usableH, stroke: '#94a3b8', strokeWidth: 1.5 }),
+
+        React.createElement('line', { key: 'kaiser-line', x1: padL, y1: kaiserY, x2: svgWidth - padR, y2: kaiserY, stroke: '#ef4444', strokeWidth: 1.5, strokeDasharray: '4 3' }),
+        React.createElement('text', {
+          key: 'kaiser-txt',
+          x: svgWidth - padR,
+          y: kaiserY - 5,
+          textAnchor: 'end',
+          fontSize: 9.5,
+          fontWeight: 'bold',
+          fill: '#dc2626'
+        }, '고유값 = 1.0 (Kaiser-Guttman 기준선)'),
+
+        ...points.map(p => React.createElement('rect', {
+          key: `bar-${p.idx}`,
+          x: p.x - barW / 2,
+          y: p.y,
+          width: barW,
+          height: padT + usableH - p.y,
+          rx: 3,
+          fill: p.v >= 1.0 ? 'rgba(99, 102, 241, 0.4)' : 'rgba(148, 163, 184, 0.3)',
+          stroke: p.v >= 1.0 ? '#4f46e5' : '#94a3b8',
+          strokeWidth: 1.5
+        })),
+
+        React.createElement('polyline', { key: 'line', fill: 'none', stroke: '#f59e0b', strokeWidth: 2.5, points: polylinePoints }),
+
+        ...points.map(p => React.createElement(
+          React.Fragment,
+          { key: `pt-${p.idx}` },
+          [
+            React.createElement('circle', {
+              cx: p.x,
+              cy: p.y,
+              r: 4.5,
+              fill: '#f59e0b',
+              stroke: '#ffffff',
+              strokeWidth: 2
+            }),
+            React.createElement('text', {
+              x: p.x,
+              y: p.y - 8,
+              textAnchor: 'middle',
+              fontSize: 10,
+              fontWeight: 'black',
+              fill: p.v >= 1.0 ? '#4338ca' : '#64748b'
+            }, String(p.v)),
+            React.createElement('text', {
+              x: p.x,
+              y: padT + usableH + 16,
+              textAnchor: 'middle',
+              fontSize: 10,
+              fontWeight: 'bold',
+              fill: '#475569'
+            }, `Comp ${p.idx + 1}`)
+          ]
+        ))
+      ];
+
+      elements.push(
+        React.createElement(
+          'div',
+          {
+            key: `scree-${i}`,
+            className: 'my-3 p-3 sm:p-4 rounded-2xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm'
+          },
+          [
+            React.createElement(
+              'div',
+              { key: 'head', className: 'flex items-center justify-between pb-2 mb-2 border-b border-slate-200 dark:border-slate-800' },
+              [
+                React.createElement('div', { key: 'title', className: 'text-xs sm:text-sm font-black text-slate-800 dark:text-slate-100 flex items-center space-x-1.5' }, [
+                  React.createElement('span', { key: 'icon' }, '📈'),
+                  React.createElement('span', { key: 't' }, screeTitle)
+                ]),
+                React.createElement('span', { key: 'badge', className: 'text-[10px] font-bold px-2 py-0.5 rounded bg-amber-100 dark:bg-amber-950 text-amber-700 dark:text-amber-300 font-mono' }, 'Scree Plot')
+              ]
+            ),
+            React.createElement(
+              'div',
+              { key: 'svg-wrap', className: 'w-full overflow-x-auto flex justify-center py-1' },
+              React.createElement('svg', {
+                viewBox: `0 0 ${svgWidth} ${svgHeight}`,
+                className: 'w-full max-w-[460px] h-auto select-none'
+              }, svgChildren)
+            )
+          ]
+        )
+      );
       continue;
     }
 
