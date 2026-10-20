@@ -103,14 +103,19 @@ function DashboardView({ exams, quizzes, examHistory, wrongCount, bookmarkCount,
           className="bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 p-5 rounded-2xl shadow-sm hover:shadow-md transition-shadow cursor-pointer group"
         >
           <div className="flex items-center justify-between text-slate-500 dark:text-slate-400 mb-2">
-            <span className="text-xs font-bold uppercase tracking-wider">복습할 오답 문제</span>
-            <span className="text-xl group-hover:scale-110 transition-transform">❌</span>
+            <span className="text-xs font-bold uppercase tracking-wider">오답 & 북마크 보관함</span>
+            <span className="text-xl group-hover:scale-110 transition-transform">📑</span>
           </div>
-          <div className="text-2xl sm:text-3xl font-black text-rose-600 dark:text-rose-400">
-            {wrongCount} <span className="text-sm font-semibold text-slate-500">문항</span>
+          <div className="flex items-baseline space-x-3">
+            <div className="text-2xl sm:text-3xl font-black text-rose-600 dark:text-rose-400">
+              {wrongCount} <span className="text-xs font-semibold text-slate-500">오답</span>
+            </div>
+            <div className="text-2xl sm:text-3xl font-black text-amber-500 dark:text-amber-400">
+              {bookmarkCount} <span className="text-xs font-semibold text-slate-500">북마크</span>
+            </div>
           </div>
-          <div className="mt-2 text-xs text-rose-500 font-medium flex items-center space-x-1">
-            <span>오답노트 복습하러 가기</span>
+          <div className="mt-2 text-xs text-indigo-500 font-medium flex items-center space-x-1">
+            <span>보관함 바로가기</span>
             <span>→</span>
           </div>
         </div>

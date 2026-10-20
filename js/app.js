@@ -160,7 +160,7 @@ function App() {
               { id: 'concept-book', label: '개념 마스터북', icon: '📖' },
               { id: 'exam-select', label: '기출문제 풀이', icon: '📝' },
               { id: 'quiz-corner', label: '단어/문장 퀴즈', icon: '⚡' },
-              { id: 'wrong-notes', label: '오답노트', icon: '📑', badge: wrongQuestions.length + bookmarks.length },
+              { id: 'wrong-notes', label: '오답 · 북마크', icon: '📑', badge: wrongQuestions.length + bookmarks.length },
               { id: 'search', label: '검색 & 용어사전', icon: '🔍' },
             ].map(nav => (
               <button
@@ -203,7 +203,7 @@ function App() {
             { id: 'concept-book', label: '개념서' },
             { id: 'exam-select', label: '기출문제' },
             { id: 'quiz-corner', label: '퀴즈코너' },
-            { id: 'wrong-notes', label: `오답(${wrongQuestions.length})` },
+            { id: 'wrong-notes', label: `오답·북마크(${wrongQuestions.length + bookmarks.length})` },
             { id: 'search', label: '검색·용어사전' },
           ].map(nav => (
             <button

@@ -1067,14 +1067,19 @@ function DashboardView({ exams, quizzes, examHistory, wrongCount, bookmarkCount,
           className="bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 p-5 rounded-2xl shadow-sm hover:shadow-md transition-shadow cursor-pointer group"
         >
           <div className="flex items-center justify-between text-slate-500 dark:text-slate-400 mb-2">
-            <span className="text-xs font-bold uppercase tracking-wider">복습할 오답 문제</span>
-            <span className="text-xl group-hover:scale-110 transition-transform">❌</span>
+            <span className="text-xs font-bold uppercase tracking-wider">오답 & 북마크 보관함</span>
+            <span className="text-xl group-hover:scale-110 transition-transform">📑</span>
           </div>
-          <div className="text-2xl sm:text-3xl font-black text-rose-600 dark:text-rose-400">
-            {wrongCount} <span className="text-sm font-semibold text-slate-500">문항</span>
+          <div className="flex items-baseline space-x-3">
+            <div className="text-2xl sm:text-3xl font-black text-rose-600 dark:text-rose-400">
+              {wrongCount} <span className="text-xs font-semibold text-slate-500">오답</span>
+            </div>
+            <div className="text-2xl sm:text-3xl font-black text-amber-500 dark:text-amber-400">
+              {bookmarkCount} <span className="text-xs font-semibold text-slate-500">북마크</span>
+            </div>
           </div>
-          <div className="mt-2 text-xs text-rose-500 font-medium flex items-center space-x-1">
-            <span>오답노트 복습하러 가기</span>
+          <div className="mt-2 text-xs text-indigo-500 font-medium flex items-center space-x-1">
+            <span>보관함 바로가기</span>
             <span>→</span>
           </div>
         </div>
@@ -4109,7 +4114,7 @@ function WrongNotesView({
                 <div className="flex items-center justify-between">
                   <div className="flex items-center space-x-2">
                     <span className="px-2.5 py-0.5 rounded-lg text-[11px] font-extrabold bg-indigo-50 dark:bg-indigo-950 text-indigo-600 dark:text-indigo-400 border border-indigo-200 dark:border-indigo-800">
-                      {q.subjectName}
+                      {q.subjectName || (q.subjectId === 1 ? '1과목 데이터 이해' : q.subjectId === 2 ? '2과목 데이터분석 기획' : '3과목 데이터 분석')}
                     </span>
                     <span className="text-xs font-bold text-slate-400">문항 ID: {q.id}</span>
                   </div>
@@ -5009,7 +5014,7 @@ function App() {
               { id: 'concept-book', label: '개념 마스터북', icon: '📖' },
               { id: 'exam-select', label: '기출문제 풀이', icon: '📝' },
               { id: 'quiz-corner', label: '단어/문장 퀴즈', icon: '⚡' },
-              { id: 'wrong-notes', label: '오답노트', icon: '📑', badge: wrongQuestions.length + bookmarks.length },
+              { id: 'wrong-notes', label: '오답 · 북마크', icon: '📑', badge: wrongQuestions.length + bookmarks.length },
               { id: 'search', label: '검색 & 용어사전', icon: '🔍' },
             ].map(nav => (
               <button
@@ -5052,7 +5057,7 @@ function App() {
             { id: 'concept-book', label: '개념서' },
             { id: 'exam-select', label: '기출문제' },
             { id: 'quiz-corner', label: '퀴즈코너' },
-            { id: 'wrong-notes', label: `오답(${wrongQuestions.length})` },
+            { id: 'wrong-notes', label: `오답·북마크(${wrongQuestions.length + bookmarks.length})` },
             { id: 'search', label: '검색·용어사전' },
           ].map(nav => (
             <button

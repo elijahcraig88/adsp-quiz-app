@@ -129,7 +129,7 @@ function WrongNotesView({
                 <div className="flex items-center justify-between">
                   <div className="flex items-center space-x-2">
                     <span className="px-2.5 py-0.5 rounded-lg text-[11px] font-extrabold bg-indigo-50 dark:bg-indigo-950 text-indigo-600 dark:text-indigo-400 border border-indigo-200 dark:border-indigo-800">
-                      {q.subjectName}
+                      {q.subjectName || (q.subjectId === 1 ? '1과목 데이터 이해' : q.subjectId === 2 ? '2과목 데이터분석 기획' : '3과목 데이터 분석')}
                     </span>
                     <span className="text-xs font-bold text-slate-400">문항 ID: {q.id}</span>
                   </div>
